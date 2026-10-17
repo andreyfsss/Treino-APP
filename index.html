@@ -1,0 +1,125 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14181d"><link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Treino">
+<title>Treino</title>
+<style>
+:root{--bg:#14181d;--p:#1d232b;--p2:#262e38;--tx:#e9e6df;--mu:#8f98a3;--ac:#f2b84b;--er:#ef6b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{max-width:640px;margin:0 auto;padding:14px 14px 60px}
+h1{font-size:22px;margin:6px 0 12px}
+.mu{color:var(--mu);font-size:13px}.chip{font-size:12px;color:var(--mu)}
+.card{background:var(--p);border-radius:10px;padding:12px;margin:10px 0;color:inherit;border:0}
+.big{font-size:26px;font-variant-numeric:tabular-nums;color:var(--ac)}
+.eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sr{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:6px;margin-top:6px;align-items:center;color:var(--mu)}
+.sr2{display:grid;grid-template-columns:1fr 64px 84px;gap:6px;margin:6px 0}
+input,select{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--ac)}
+input::placeholder{color:#59626d}
+button{background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px 14px;font:inherit}
+button.pri{background:var(--ac);color:#1a1405;width:100%;margin-top:8px;font-weight:600}
+button.lk{background:none;color:var(--er);padding:6px 0}
+.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1}.tabs .on{background:var(--ac);color:#1a1405;font-weight:600}
+.bar{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;margin:4px 0;border-radius:6px;background:linear-gradient(90deg,var(--p2) var(--w),transparent var(--w))}
+.bar span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+</style></head><body><div id="app"></div>
+<script>
+const URL_='https://rvualboqhxyrsxmorphy.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
+const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior','Glúteos','Panturrilha','Abdômen','Outro'];
+const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let DB=JSON.parse(localStorage.getItem('tdb')||'{"docs":{},"pull":""}'),AU=JSON.parse(localStorage.getItem('tau')||'null');
+const S={v:'home',sid:null,tab:'treino',sub:'vol',per:'w',off:0,msg:'',st:''};
+const persist=()=>localStorage.setItem('tdb',JSON.stringify(DB));
+const ts=s=>Date.parse(s);
+function put(id,kind,data){const d=DB.docs[id]||{id,kind};d.data=data;d.updated_at=new Date().toISOString();d.dirty=1;d.deleted=!!d.deleted;DB.docs[id]=d;persist();syncSoon()}
+function del(id){const d=DB.docs[id];d.deleted=true;d.updated_at=new Date().toISOString();d.dirty=1;persist();syncSoon()}
+const list=k=>Object.values(DB.docs).filter(d=>d.kind===k&&!d.deleted);
+const p2=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),today=()=>ds(new Date());
+const fd=s=>s.slice(8)+'/'+s.slice(5,7),fmt=n=>Math.round(n).toLocaleString('pt-BR');
+const stu=()=>DB.docs[S.sid],sessions=sid=>list('session').filter(d=>d.data.studentId===sid);
+const setVol=x=>(+x.kg||0)*(+x.reps||0),exVol=a=>(a||[]).reduce((n,x)=>n+setVol(x),0);
+const exN=a=>(a||[]).filter(x=>+x.reps>0).length;
+const sesVol=s=>Object.values(s.data.sets).reduce((n,a)=>n+exVol(a),0),sesN=s=>Object.values(s.data.sets).reduce((n,a)=>n+exN(a),0);
+
+/* ---- sincronização ---- */
+function setAu(j){AU={at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1000)+j.expires_in};localStorage.setItem('tau',JSON.stringify(AU))}
+async function tok(){if(AU.exp<Date.now()/1000+60){const r=await fetch(URL_+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:AU.rt})});
+if(!r.ok){if(r.status<500){AU=null;localStorage.removeItem('tau');render()}throw 0}setAu(await r.json())}return AU.at}
+let busy=0,timer;
+function syncSoon(){clearTimeout(timer);timer=setTimeout(sync,1500);stat()}
+async function sync(){if(busy||!AU||!navigator.onLine)return;busy=1;S.st='Sincronizando…';stat();
+try{const h={apikey:KEY,Authorization:'Bearer '+await tok(),'Content-Type':'application/json'};
+const dirty=Object.values(DB.docs).filter(d=>d.dirty).map(d=>[d,d.updated_at]);
+if(dirty.length){const r=await fetch(URL_+'/rest/v1/docs',{method:'POST',headers:{...h,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(dirty.map(([d])=>({id:d.id,kind:d.kind,data:d.data,updated_at:d.updated_at,deleted:d.deleted})))});
+if(!r.ok)throw 1;dirty.forEach(([d,u])=>{if(d.updated_at===u)delete d.dirty})}
+for(;;){const r=await fetch(URL_+'/rest/v1/docs?select=*&order=synced_at.asc&limit=1000'+(DB.pull?'&synced_at=gt.'+encodeURIComponent(DB.pull):''),{headers:h});
+if(!r.ok)throw 2;const rows=await r.json();
+rows.forEach(x=>{const l=DB.docs[x.id];if(!l||!l.dirty||ts(x.updated_at)>ts(l.updated_at))DB.docs[x.id]={id:x.id,kind:x.kind,data:x.data,updated_at:x.updated_at,deleted:x.deleted};DB.pull=x.synced_at});
+if(rows.length<1000)break}
+persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
+if(!document.activeElement||document.activeElement.tagName!=='INPUT')render()}
+catch(e){S.st='Não sincronizado (tentarei de novo)'}
+busy=0;stat()}
+function stat(){const n=$('#st');if(n){const d=Object.values(DB.docs).filter(x=>x.dirty).length;n.textContent=S.st+(d?' · '+d+' pendente(s)':'')}}
+
+/* ---- telas ---- */
+function loginV(){return `<h1>Treino</h1><div class=card><input id=em type=email placeholder="E-mail" autocomplete=username><div style="height:8px"></div><input id=pw type=password placeholder="Senha" autocomplete=current-password><button class=pri data-a=login>Entrar</button><p class=mu>${esc(S.msg)}</p></div>`}
+function home(){const L=list('student').sort((a,b)=>a.data.name.localeCompare(b.data.name));
+return `<div class=eh><h1>Alunos</h1><span class=chip id=st></span></div>`+(L.map(s=>`<button class=card style="width:100%;text-align:left" data-a=open data-id="${s.id}"><b>${esc(s.data.name)}</b> <span class=mu>${(s.data.plan||[]).length} exercícios</span></button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')
++`<button class=pri data-a=addst>+ Aluno</button><div class=tabs><button data-a=sync>Sincronizar</button><button data-a=export>Backup</button><button onclick="$('#imp').click()">Restaurar</button><button data-a=logout>Sair</button></div><input id=imp type=file accept=.json hidden>`}
+function sv(){const st=stu();return `<div class=eh><button data-a=back>‹ Alunos</button><span class=chip id=st></span></div><h1>${esc(st.data.name)}</h1><div class=tabs>${[['treino','Treino'],['ficha','Ficha'],['resumo','Resumo']].map(([k,l])=>`<button data-a=tab data-k=${k} class="${S.tab===k?'on':''}">${l}</button>`).join('')}</div>`+(S.tab==='treino'?vTreino():S.tab==='ficha'?vFicha():vResumo())}
+function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today());if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,date:today(),sets:{}});s=DB.docs[id]}return s}
+function last(id){const s=sessions(S.sid).filter(x=>x.data.date<today()&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
+function vTreino(){const pl=stu().data.plan||[];if(!pl.length)return '<p class=mu>Monte a ficha na aba Ficha.</p>';const cs=curSes();
+return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b></div>`+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=Math.max(+e.sets||0,cur.length);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span></div>';
+for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span>${['kg','reps','rpe'].map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k} value="${esc(c[k]??'')}" placeholder="${esc(p[k]??'')}">`).join('')}</div>`}
+return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)} · ${e.sets}×${esc(e.reps)}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')}
+function vFicha(){const pl=stu().data.plan||[];return '<p class=mu>Nome · grupo muscular · séries · repetições</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><input data-p=sets data-i=${i} inputmode=numeric value="${e.sets}"><input data-p=reps data-i=${i} value="${esc(e.reps)}"></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
+function range(){const n=new Date();let a,b;if(S.per==='w'){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+S.off*7),k=(d.getDay()+6)%7;a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k);b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)}else{a=new Date(n.getFullYear(),n.getMonth()+S.off,1);b=new Date(a.getFullYear(),a.getMonth()+1,0)}return[a,b]}
+const bar=(l,r,p)=>`<div class=bar style="--w:${p}%"><span>${esc(l)}</span><span>${r}</span></div>`;
+function vResumo(){const[a,b]=range(),A=ds(a),B=ds(b),pl=stu().data.plan||[],gm={},nm={};pl.forEach(e=>{gm[e.id]=e.group;nm[e.id]=e.name||'(sem nome)'});
+const ss=sessions(S.sid).filter(s=>s.data.date>=A&&s.data.date<=B).sort((x,y)=>x.data.date<y.data.date?-1:1),ex={},gr={};let V=0,N=0;
+ss.forEach(s=>Object.entries(s.data.sets).forEach(([id,arr])=>{const v=exVol(arr),n=exN(arr),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)';(ex[m]??={v:0,n:0}).v+=v;ex[m].n+=n;(gr[g]??={v:0,n:0}).v+=v;gr[g].n+=n;V+=v;N+=n}));
+const lbl=S.per==='w'?fd(A)+' – '+fd(B):a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),u=S.sub==='ser'?'n':'v',sfx=S.sub==='ser'?' séries':' kg';
+const T=(k,l,on,act)=>`<button data-a=${act} data-k=${k} class="${on?'on':''}">${l}</button>`;
+let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}</div>`;
+if(!ss.length)return h+'<p class=mu>Nenhum treino neste período.</p>';
+const rel=(o,key)=>{const m=Math.max(1,...Object.values(o).map(x=>x[key]));return Object.entries(o).sort((x,y)=>y[1][key]-x[1][key]).map(([k,x])=>bar(k,key==='n'?x.n+' séries':fmt(x.v)+' kg',x[key]/m*100)).join('')};
+if(S.sub==='grp')return h+`<div class=card><b>Séries por grupo</b>${rel(gr,'n')}</div><div class=card><b>Volume por grupo</b>${rel(gr,'v')}</div>`;
+const tot=S.sub==='ser'?N+' séries':fmt(V)+' kg',per=ss.map(s=>bar(fd(s.data.date),S.sub==='ser'?sesN(s)+' séries':fmt(sesVol(s))+' kg',100)).join('');
+return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><br><b class=big>${tot}</b></div><div class=card><b>Por treino</b>${per}</div><div class=card><b>Por exercício</b>${rel(ex,u)}</div>`}
+function render(){const app=$('#app');app.innerHTML=!AU?loginV():S.v==='home'||!stu()?home():sv();stat()}
+function refresh(){const cs=curSes();document.querySelectorAll('[data-v]').forEach(n=>{n.textContent=n.dataset.v==='tot'?fmt(cs?sesVol(cs):0)+' kg':fmt(exVol(cs&&cs.data.sets[n.dataset.v]))});stat()}
+
+/* ---- ações ---- */
+async function login(){const r=await fetch(URL_+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:$('#em').value.trim(),password:$('#pw').value})}).catch(()=>null);
+if(r&&r.ok){setAu(await r.json());S.msg='';render();sync()}else{S.msg=r?'E-mail ou senha incorretos.':'Sem conexão. Conecte-se para entrar.';render()}}
+function exp(){const o=Object.fromEntries(Object.entries(DB.docs).filter(([,d])=>!d.deleted)),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='backup-treino-'+today()+'.json';a.click()}
+async function imp(f){if(!f)return;try{Object.values(JSON.parse(await f.text())).forEach(d=>{DB.docs[d.id]={...d,dirty:1}});persist();render();syncSoon()}catch{alert('Arquivo inválido')}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,k=t.dataset.k,i=+t.dataset.i;
+if(a==='login')return login();
+if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treino'}
+else if(a==='back')S.v='home';
+else if(a==='tab')S.tab=k;
+else if(a==='sub')S.sub=k;
+else if(a==='per'){S.per=k;S.off=0}
+else if(a==='nav')S.off+=+k;
+else if(a==='addst'){const n=prompt('Nome do aluno');if(!n||!n.trim())return;put(uid(),'student',{name:n.trim(),plan:[]})}
+else if(a==='addex'){const s=stu();s.data.plan.push({id:uid().slice(0,8),name:'',group:'Peito',sets:3,reps:'8-12'});put(s.id,'student',s.data)}
+else if(a==='rmex'){const s=stu();s.data.plan.splice(i,1);put(s.id,'student',s.data)}
+else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,e=stu().data.plan.find(x=>x.id===id),arr=(cs.data.sets[id]??=[]),n=Math.max(+e.sets||0,arr.length);while(arr.length<n+1)arr.push({});put(cs.id,'session',cs.data)}
+else if(a==='delst'){if(!confirm('Excluir este aluno e todo o histórico dele?'))return;sessions(S.sid).forEach(s=>del(s.id));del(S.sid);S.v='home'}
+else if(a==='sync')return sync();
+else if(a==='export')return exp();
+else if(a==='logout'){if(!confirm('Sair? O que não foi sincronizado continua no aparelho.'))return;AU=null;localStorage.removeItem('tau')}
+render()});
+document.addEventListener('input',e=>{const t=e.target,k=t.dataset.k;if(!k||!t.dataset.e)return;const cs=curSes(true),arr=(cs.data.sets[t.dataset.e]??=[]),i=+t.dataset.i;while(arr.length<=i)arr.push({});arr[i][k]=t.value.replace(',','.');put(cs.id,'session',cs.data);refresh()});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='imp')return imp(t.files[0]);const p=t.dataset.p;if(!p)return;const s=stu();s.data.plan[+t.dataset.i][p]=p==='sets'?(+t.value||0):t.value;put(s.id,'student',s.data)});
+addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+render();sync();
+</script></body></html>

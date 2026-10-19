@@ -15,7 +15,9 @@ h1{font-size:22px;margin:6px 0 12px}
 .big{font-size:26px;font-variant-numeric:tabular-nums;color:var(--ac)}
 .eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sr{display:grid;grid-template-columns:22px 1fr 1fr 2.2fr;gap:6px;margin-top:6px;align-items:center;color:var(--mu)}
-.sr2{display:grid;grid-template-columns:1fr 64px 84px;gap:6px;margin:6px 0}
+.sr2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
+textarea{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit;resize:vertical;margin-top:6px}
+button.lk2{background:none;color:var(--mu);padding:6px 0;font-size:13px}
 input,select{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--ac)}
 input::placeholder{color:#59626d}
@@ -28,6 +30,7 @@ button.lk{background:none;color:var(--er);padding:6px 0}
 </style></head><body><div id="app"></div>
 <script>
 const URL_='https://rvualboqhxyrsxmorphy.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
+const EQ=['Aparelho','Livre','Halter','Barra','Anilha','Kettlebell'];
 const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior','Glúteos','Panturrilha','Abdômen','Outro'];
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -75,19 +78,20 @@ function sv(){const st=stu();return `<div class=eh><button data-a=back>‹ Aluno
 function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,date:today(),sets:{}});s=DB.docs[id]}return s}
 function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
 function vTreino(){const pl=stu().data.plan||[];if(!pl.length)return '<p class=mu>Monte a ficha na aba Ficha.</p>';const cs=curSes();
-return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=Math.max(+e.sets||0,cur.length);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span></div>';
+return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=Math.max(cur.length,1);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span></div>';
 for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span>${['kg','reps'].map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k} value="${esc(c[k]??'')}" placeholder="${esc(p[k]??'')}">`).join('')}${rpeSel(e.id,i,c.rpe,p.rpe)}</div>`}
-return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)} · ${e.sets}×${esc(e.reps)}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
-function vFicha(){const pl=stu().data.plan||[];return '<p class=mu>Nome · grupo muscular · séries · repetições</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><input data-p=sets data-i=${i} inputmode=numeric value="${e.sets}"><input data-p=reps data-i=${i} value="${esc(e.reps)}"></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
+return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)}${e.equip?' · '+esc(e.equip):''}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
+function noteUI(e,cs){const t=(cs&&cs.data.notes||{})[e.id]||'';return S.nt===e.id?`<textarea data-n="${e.id}" rows="2" placeholder="Observação">${esc(t)}</textarea><button class=lk2 data-a=notedone>Fechar</button>`:t?`<div class=mu style="margin-top:6px">Obs.: ${esc(t)} <button class=lk2 data-a=note data-e="${e.id}">editar</button></div>`:`<button class=lk2 data-a=note data-e="${e.id}">+ observação</button>`}
+function vFicha(){const pl=stu().data.plan||[];return '<p class=mu>Nome · grupo muscular · equipamento</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><select data-p=equip data-i=${i}><option value="">Equipamento</option>${EQ.map(g=>`<option${g===e.equip?' selected':''}>${g}</option>`).join('')}</select></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
 function range(){const n=new Date();let a,b;if(S.per==='w'){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+S.off*7),k=(d.getDay()+6)%7;a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k);b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)}else{a=new Date(n.getFullYear(),n.getMonth()+S.off,1);b=new Date(a.getFullYear(),a.getMonth()+1,0)}return[a,b]}
 const bar=(l,r,p)=>`<div class=bar style="--w:${p}%"><span>${esc(l)}</span><span>${r}</span></div>`;
 const R=[['10','10 · Esforço máximo'],['9.5','9,5 · Não faria nenhuma'],['9','9 · Faria mais 1'],['8.5','8,5 · Faria mais 1 ou 2'],['8','8 · Faria mais 2'],['7.5','7,5 · Faria mais 2 ou 3'],['7','7 · Faria mais 3'],['6','6 · Faria mais 4 ou +']];
 function rpeSel(e,i,v,pv){v=v==null?'':String(v);const o=!v||R.some(r=>r[0]===v)?R:[...R,[v,v]];return `<select data-e="${e}" data-i=${i} data-k=rpe><option value="">${pv?'RPE (últ. '+esc(pv)+')':'RPE'}</option>${o.map(r=>`<option value="${r[0]}"${r[0]===v?' selected':''}>${r[1]}</option>`).join('')}</select>`}
 const LEG=`<details class=card><summary>Escala de RPE</summary><p class=mu>10 · Esforço máximo (0 RIR): falha, nenhuma repetição a mais com boa forma.<br>9,5: nenhuma repetição completa a mais, talvez uma parcial.<br>9 (1 RIR): sobrou 1 repetição.<br>8,5: sobraram 1 a 2.<br>8 (2 RIR): sobraram 2, controlado.<br>7,5: sobraram 2 a 3.<br>7 (3 RIR): sobraram 3, execução muito limpa.<br>6 ou menos (4+ RIR): leve a moderado, aquecimento ou velocidade.</p></details>`;
 const COL=['#f2b84b','#6aa6ff','#6fcf97','#ef6b6b','#b48cf2','#4fd1c5','#f28cb1','#a3b18a','#e9c46a','#8f98a3','#c77d4a'];
-const fk=n=>n>=1000?(n/1000).toFixed(1).replace('.',',')+'k':String(Math.round(n)),ent=(o,k)=>Object.entries(o).map(([n,x])=>[n,x[k]]).sort((a,b)=>b[1]-a[1]);
-function cols(it){const W=360,H=170,pb=26,pt=18,g=(W-20)/it.length,bw=Math.min(40,g*.65),m=Math.max(1,...it.map(x=>x[1]));
-return `<svg viewBox="0 0 ${W} ${H}" width="100%">`+it.map((x,i)=>{const h=(H-pb-pt)*x[1]/m,X=10+g*i+(g-bw)/2,y=H-pb-h;return `<rect x="${X}" y="${y}" width="${bw}" height="${Math.max(h,1)}" rx="4" fill="#f2b84b"/><text x="${X+bw/2}" y="${y-5}" text-anchor="middle" font-size="10" fill="#e9e6df">${fk(x[1])}</text><text x="${X+bw/2}" y="${H-8}" text-anchor="middle" font-size="10" fill="#8f98a3">${x[0]}</text>`}).join('')+'</svg>'}
+const fk=n=>Math.round(n).toLocaleString('pt-BR'),ent=(o,k)=>Object.entries(o).map(([n,x])=>[n,x[k]]).sort((a,b)=>b[1]-a[1]);
+function cols(it){const W=360,H=170,pb=26,pt=it.length>7?46:18,g=(W-20)/it.length,bw=Math.min(40,g*.65),m=Math.max(1,...it.map(x=>x[1]));
+return `<svg viewBox="0 0 ${W} ${H}" width="100%">`+it.map((x,i)=>{const h=(H-pb-pt)*x[1]/m,X=10+g*i+(g-bw)/2,y=H-pb-h;return `<rect x="${X}" y="${y}" width="${bw}" height="${Math.max(h,1)}" rx="4" fill="#f2b84b"/>${it.length>7?`<text transform="translate(${X+bw/2+3} ${y-5}) rotate(-90)" font-size="10" fill="#e9e6df">${fk(x[1])}</text>`:`<text x="${X+bw/2}" y="${y-5}" text-anchor="middle" font-size="10" fill="#e9e6df">${fk(x[1])}</text>`}<text x="${X+bw/2}" y="${H-8}" text-anchor="middle" font-size="10" fill="#8f98a3">${x[0]}</text>`}).join('')+'</svg>'}
 function hbars(it,fv,c){const W=360,rh=30,lw=110,m=Math.max(1,...it.map(x=>x[1]));
 return `<svg viewBox="0 0 ${W} ${it.length*rh+4}" width="100%">`+it.map((x,i)=>{const w=(W-lw-80)*x[1]/m,y=i*rh+2;return `<text x="0" y="${y+18}" font-size="12" fill="#e9e6df">${esc(x[0].length>16?x[0].slice(0,15)+'…':x[0])}</text><rect x="${lw}" y="${y+5}" width="${Math.max(w,2)}" height="18" rx="4" fill="${c}"/><text x="${lw+w+6}" y="${y+18}" font-size="11" fill="#8f98a3">${fv(x[1])}</text>`}).join('')+'</svg>'}
 function donut(it,fv){const t=it.reduce((n,x)=>n+x[1],0)||1,r=55,c=70;let a=-Math.PI/2;
@@ -97,12 +101,13 @@ return `<div style="display:flex;gap:14px;align-items:center"><svg viewBox="0 0 
 function lines(ss,a,b,pl){const w=S.per==='w',nb=w?7:Math.ceil(b.getDate()/7),V=Array(nb).fill(0),N=Array(nb).fill(0),gm={},G={};pl.forEach(e=>gm[e.id]=e.group);
 ss.forEach(s=>{const i=w?Math.round((Date.parse(s.data.date+'T12:00')-Date.parse(ds(a)+'T12:00'))/864e5):Math.floor((+s.data.date.slice(8)-1)/7);Object.entries(s.data.sets).forEach(([id,arr])=>{const g=gm[id]||'Outro';V[i]+=exVol(arr);N[i]+=exN(arr);(G[g]??=Array(nb).fill(0))[i]+=exN(arr)})});
 return{L:w?['Seg','Ter','Qua','Qui','Sex','Sáb','Dom']:V.map((_,i)=>(i*7+1)+'–'+Math.min(i*7+7,b.getDate())),V,N,G}}
-function lineC(L,D){const W=360,H=190,l=36,r=12,t=14,bt=26,m=Math.max(1,...D.flatMap(x=>x.v)),X=i=>l+(W-l-r)*(L.length>1?i/(L.length-1):.5),Y=v=>t+(H-t-bt)*(1-v/m);
+function lineC(L,D){const W=360,H=190,l=46,r=14,t=22,bt=26,m=Math.max(1,...D.flatMap(x=>x.v)),X=i=>l+(W-l-r)*(L.length>1?i/(L.length-1):.5),Y=v=>t+(H-t-bt)*(1-v/m);
 const gr=[0,.5,1].map(f=>`<line x1="${l}" x2="${W-r}" y1="${Y(m*f)}" y2="${Y(m*f)}" stroke="#2c3541"/><text x="${l-4}" y="${Y(m*f)+3}" text-anchor="end" font-size="9" fill="#8f98a3">${fk(m*f)}</text>`).join('');
 const xl=L.map((x,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9" fill="#8f98a3">${x}</text>`).join('');
-const ln=D.map(x=>`<polyline fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round" points="${x.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+x.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${x.c}"/>`).join('')).join('');
+const ln=D.map(x=>`<polyline fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round" points="${x.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+x.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${x.c}"/>${D.length===1?`<text x="${X(i)}" y="${Y(v)-7}" text-anchor="middle" font-size="10" fill="${x.c}">${fk(v)}</text>`:''}`).join('')).join('');
 const lg=D.length>1?'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px">'+D.map(x=>`<span class=mu><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</span>`).join('')+'</div>':'';
 return `<svg viewBox="0 0 ${W} ${H}" width="100%">${gr}${xl}${ln}</svg>`+lg}
+function tbl(L,D){const c='style="text-align:right;padding:3px 4px"';return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><tr><th></th>'+L.map(x=>`<th ${c}>${x}</th>`).join('')+`<th ${c}>Total</th></tr>`+D.map(x=>`<tr><td style="padding:3px 4px;white-space:nowrap"><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</td>`+x.v.map(v=>`<td ${c}>${fk(v)}</td>`).join('')+`<td ${c}><b>${fk(x.v.reduce((p,q)=>p+q,0))}</b></td></tr>`).join('')+'</table></div>'}
 function vFim(){const s=DB.docs[S.rid];if(!s)return '';const pl=stu().data.plan||[],nm={},gm={},ex=[],gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});let V=0,N=0;
 Object.entries(s.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const r=arr.map(x=>+x.rpe).filter(x=>x>0),g=gm[id]||'Outro';ex.push([nm[id]||'(removido)',exVol(arr),n,r.length?r.reduce((p,q)=>p+q,0)/r.length:0]);gr[g]=(gr[g]||0)+n;V+=exVol(arr);N+=n});
 ex.sort((x,y)=>y[1]-x[1]);const pv=sessions(S.sid).filter(x=>x.data.date<s.data.date).sort((x,y)=>x.data.date<y.data.date?1:-1)[0],pvV=pv?sesVol(pv):0,dl=pvV?` · ${V>=pvV?'+':''}${Math.round((V/pvV-1)*100)}% vs. treino anterior`:'';
@@ -116,8 +121,8 @@ const T=(k,l,on,act)=>`<button data-a=${act} data-k=${k} class="${on?'on':''}">$
 let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}${T('rel','Relatório',S.sub==='rel','sub')}</div>`;
 if(!ss.length)return h+'<p class=mu>Nenhum treino neste período.</p>';
 const rel=(o,key)=>{const m=Math.max(1,...Object.values(o).map(x=>x[key]));return Object.entries(o).sort((x,y)=>y[1][key]-x[1][key]).map(([k,x])=>bar(k,key==='n'?x.n+' séries':fmt(x.v)+' kg',x[key]/m*100)).join('')};
-if(S.sub==='rel'){const o=lines(ss,a,b,pl),gk=Object.entries(o.G).sort((x,y)=>y[1].reduce((p,q)=>p+q,0)-x[1].reduce((p,q)=>p+q,0)).slice(0,6);
-return h+`<div class=card><b>Relatório ${S.per==='w'?'da semana':'do mês'} · ${esc(lbl)}</b><p class=mu>${ss.length} treino(s) · ${fmt(V)} kg · ${N} séries · ${S.per==='w'?'por dia':'em blocos de 7 dias'}</p></div><div class=card><b>Volume (kg)</b>${lineC(o.L,[{n:'Volume',c:COL[0],v:o.V}])}</div><div class=card><b>Séries</b>${lineC(o.L,[{n:'Séries',c:COL[2],v:o.N}])}</div><div class=card><b>Séries por grupo</b>${lineC(o.L,gk.map(([n,v],i)=>({n,c:COL[i],v})))}</div>`}
+if(S.sub==='rel'){const o=lines(ss,a,b,pl),gk=Object.entries(o.G).sort((x,y)=>y[1].reduce((p,q)=>p+q,0)-x[1].reduce((p,q)=>p+q,0));
+return h+`<div class=card><b>Relatório ${S.per==='w'?'da semana':'do mês'} · ${esc(lbl)}</b><p class=mu>${ss.length} treino(s) · ${fmt(V)} kg · ${N} séries · ${S.per==='w'?'por dia':'em blocos de 7 dias'}</p></div><div class=card><b>Volume (kg)</b>${lineC(o.L,[{n:'Volume',c:COL[0],v:o.V}])}</div><div class=card><b>Séries</b>${lineC(o.L,[{n:'Séries',c:COL[2],v:o.N}])}</div><div class=card><b>Séries por grupo</b>${lineC(o.L,gk.map(([n,v],i)=>({n,c:COL[i],v})))}${tbl(o.L,gk.map(([n,v],i)=>({n,c:COL[i],v})))}</div>`}
 if(S.sub==='grp')return h+`<div class=card><b>Séries por grupo</b>${donut(ent(gr,'n'),n=>n+' séries')}</div><div class=card><b>Volume por grupo</b>${hbars(ent(gr,'v'),n=>fmt(n)+' kg','#6aa6ff')}</div>`;
 const tot=S.sub==='ser'?N+' séries':fmt(V)+' kg',per=cols(ss.map(s=>[fd(s.data.date),S.sub==='ser'?sesN(s):sesVol(s)]));
 return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><br><b class=big>${tot}</b></div><div class=card><b>Por treino</b>${per}</div><div class=card><b>Por exercício</b>${hbars(ent(ex,u),S.sub==='ser'?n=>n+' séries':n=>fmt(n)+' kg',S.sub==='ser'?'#6fcf97':'#f2b84b')}</div>`}
@@ -138,16 +143,19 @@ else if(a==='sub')S.sub=k;
 else if(a==='per'){S.per=k;S.off=0}
 else if(a==='nav')S.off+=+k;
 else if(a==='addst'){const n=prompt('Nome do aluno');if(!n||!n.trim())return;put(uid(),'student',{name:n.trim(),plan:[]})}
-else if(a==='addex'){const s=stu();s.data.plan.push({id:uid().slice(0,8),name:'',group:'Peito',sets:3,reps:'8-12'});put(s.id,'student',s.data)}
+else if(a==='addex'){const s=stu();s.data.plan.push({id:uid().slice(0,8),name:'',group:'Peito',equip:''});put(s.id,'student',s.data)}
 else if(a==='rmex'){const s=stu();s.data.plan.splice(i,1);put(s.id,'student',s.data)}
-else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,e=stu().data.plan.find(x=>x.id===id),arr=(cs.data.sets[id]??=[]),n=Math.max(+e.sets||0,arr.length);while(arr.length<n+1)arr.push({});put(cs.id,'session',cs.data)}
+else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,e=stu().data.plan.find(x=>x.id===id),arr=(cs.data.sets[id]??=[]),n=Math.max(arr.length,1);while(arr.length<n+1)arr.push({});put(cs.id,'session',cs.data)}
 else if(a==='delst'){if(!confirm('Excluir este aluno e todo o histórico dele?'))return;sessions(S.sid).forEach(s=>del(s.id));del(S.sid);S.v='home'}
 else if(a==='finish'){const cs=curSes();if(!cs||!sesN(cs)){alert('Registre ao menos uma série antes de finalizar.');return}if(!confirm('Finalizar o treino e gerar o relatório?'))return;cs.data.done=true;cs.data.endedAt=new Date().toISOString();put(cs.id,'session',cs.data);S.rid=cs.id;S.tab='fim'}
+else if(a==='note')S.nt=t.dataset.e;
+else if(a==='notedone')S.nt=null;
 else if(a==='sync')return sync();
 else if(a==='export')return exp();
 else if(a==='logout'){if(!confirm('Sair? O que não foi sincronizado continua no aparelho.'))return;AU=null;localStorage.removeItem('tau')}
-render()});
+render();if(S.nt){const x=$('textarea');if(x)x.focus()}});
 document.addEventListener('input',e=>{const t=e.target,k=t.dataset.k;if(!k||!t.dataset.e)return;const cs=curSes(true),arr=(cs.data.sets[t.dataset.e]??=[]),i=+t.dataset.i;while(arr.length<=i)arr.push({});arr[i][k]=t.value.replace(',','.');put(cs.id,'session',cs.data);refresh()});
+document.addEventListener('input',e=>{const t=e.target,id=t.dataset.n;if(!id)return;const cs=curSes(true);(cs.data.notes??={})[id]=t.value;put(cs.id,'session',cs.data)});
 document.addEventListener('change',e=>{const t=e.target;if(t.id==='imp')return imp(t.files[0]);const p=t.dataset.p;if(!p)return;const s=stu();s.data.plan[+t.dataset.i][p]=p==='sets'?(+t.value||0):t.value;put(s.id,'student',s.data)});
 addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');

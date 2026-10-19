@@ -36,7 +36,7 @@ const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let DB=JSON.parse(localStorage.getItem('tdb')||'{"docs":{},"pull":""}'),AU=JSON.parse(localStorage.getItem('tau')||'null');
-const S={v:'home',sid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:''};
+const S={v:'home',sid:null,wid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:''};
 const persist=()=>localStorage.setItem('tdb',JSON.stringify(DB));
 const ts=s=>Date.parse(s);
 function put(id,kind,data){const d=DB.docs[id]||{id,kind};d.data=data;d.updated_at=new Date().toISOString();d.dirty=1;d.deleted=!!d.deleted;DB.docs[id]=d;persist();syncSoon()}
@@ -44,7 +44,7 @@ function del(id){const d=DB.docs[id];d.deleted=true;d.updated_at=new Date().toIS
 const list=k=>Object.values(DB.docs).filter(d=>d.kind===k&&!d.deleted);
 const p2=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),today=()=>ds(new Date());
 const fd=s=>s.slice(8)+'/'+s.slice(5,7),fmt=n=>Math.round(n).toLocaleString('pt-BR');
-const stu=()=>DB.docs[S.sid],sessions=sid=>list('session').filter(d=>d.data.studentId===sid);
+const stu=()=>DB.docs[S.sid],W=()=>{const t=stu();return t&&(t.data.workouts||[]).find(w=>w.id===S.wid)},wpl=()=>(W()||{plan:[]}).plan,allPl=()=>(stu().data.workouts||[]).flatMap(w=>w.plan),sessions=sid=>list('session').filter(d=>d.data.studentId===sid);
 const setVol=x=>(+x.kg||0)*(+x.reps||0),exVol=a=>(a||[]).reduce((n,x)=>n+setVol(x),0);
 const exN=a=>(a||[]).filter(x=>+x.reps>0).length;
 const sesVol=s=>Object.values(s.data.sets).reduce((n,a)=>n+exVol(a),0),sesN=s=>Object.values(s.data.sets).reduce((n,a)=>n+exN(a),0);
@@ -64,27 +64,34 @@ for(;;){const r=await fetch(URL_+'/rest/v1/docs?select=*&order=synced_at.asc&lim
 if(!r.ok)throw 2;const rows=await r.json();
 rows.forEach(x=>{const l=DB.docs[x.id];if(!l||!l.dirty||ts(x.updated_at)>ts(l.updated_at))DB.docs[x.id]={id:x.id,kind:x.kind,data:x.data,updated_at:x.updated_at,deleted:x.deleted};DB.pull=x.synced_at});
 if(rows.length<1000)break}
-persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
+migAll();persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
 if(!document.activeElement||document.activeElement.tagName!=='INPUT')render()}
 catch(e){S.st='Não sincronizado (tentarei de novo)'}
 busy=0;stat()}
 function stat(){const n=$('#st');if(n){const d=Object.values(DB.docs).filter(x=>x.dirty).length;n.textContent=S.st+(d?' · '+d+' pendente(s)':'')}}
 
+function migAll(){list('student').forEach(st=>{if(!st.data.workouts){st.data.workouts=[{id:'w'+st.id.slice(0,8),name:'Treino 1',plan:st.data.plan||[]}];delete st.data.plan;put(st.id,'student',st.data)}});
+list('session').forEach(x=>{if(!x.data.workoutId){const st=DB.docs[x.data.studentId],w=st&&st.data.workouts&&st.data.workouts[0];if(w){x.data.workoutId=w.id;put(x.id,'session',x.data)}}})}
 /* ---- telas ---- */
 function loginV(){return `<h1>Treino</h1><div class=card><input id=em type=email placeholder="E-mail" autocomplete=username><div style="height:8px"></div><input id=pw type=password placeholder="Senha" autocomplete=current-password><button class=pri data-a=login>Entrar</button><p class=mu>${esc(S.msg)}</p></div>`}
 function home(){const L=list('student').sort((a,b)=>a.data.name.localeCompare(b.data.name));
-return `<div class=eh><h1>Alunos</h1><span class=chip id=st></span></div>`+(L.map(s=>`<button class=card style="width:100%;text-align:left" data-a=open data-id="${s.id}"><b>${esc(s.data.name)}</b> <span class=mu>${(s.data.plan||[]).length} exercícios</span></button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')
+return `<div class=eh><h1>Alunos</h1><span class=chip id=st></span></div>`+(L.map(s=>`<button class=card style="width:100%;text-align:left" data-a=open data-id="${s.id}"><b>${esc(s.data.name)}</b> <span class=mu>${(s.data.workouts||[]).length} treino(s)</span></button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')
 +`<button class=pri data-a=addst>+ Aluno</button><div class=tabs><button data-a=sync>Sincronizar</button><button data-a=export>Backup</button><button onclick="$('#imp').click()">Restaurar</button><button data-a=logout>Sair</button></div><input id=imp type=file accept=.json hidden>`}
-function sv(){const st=stu();return `<div class=eh><button data-a=back>‹ Alunos</button><span class=chip id=st></span></div><h1>${esc(st.data.name)}</h1><div class=tabs>${[['treino','Treino'],['ficha','Ficha'],['resumo','Resumo']].map(([k,l])=>`<button data-a=tab data-k=${k} class="${S.tab===k?'on':''}">${l}</button>`).join('')}</div>`+(S.tab==='treino'?vTreino():S.tab==='ficha'?vFicha():S.tab==='fim'?vFim():vResumo())}
-function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,date:today(),sets:{}});s=DB.docs[id]}return s}
+function vTreinos(){const L=stu().data.workouts||[];
+return (L.map(w=>{const ls=sessions(S.sid).filter(x=>x.data.workoutId===w.id&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
+return `<button class=card style="width:100%;text-align:left" data-a=openw data-id="${w.id}"><b>${esc(w.name)}</b> <span class=mu>${w.plan.length} exercícios</span><br><span class=mu>${ls?'Último: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Ainda não treinado'}</span></button>`}).join('')||'<p class=mu>Nenhum treino cadastrado. Crie o primeiro abaixo.</p>')+'<button class=pri data-a=addw>+ Treino</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
+function sv(){const st=stu(),w=W(),top=`<div class=eh><button data-a=back>‹ ${w?'Treinos':'Alunos'}</button><span class=chip id=st></span></div><h1>${esc(st.data.name)}${w?' · '+esc(w.name):''}</h1>`,T2=(k,l)=>`<button data-a=tab data-k=${k} class="${S.tab===k?'on':''}">${l}</button>`;
+if(w)return top+(S.tab==='fim'?vFim():`<div class=tabs>${T2('treino','Treino')}${T2('ficha','Ficha')}</div>`+(S.tab==='ficha'?vFicha():vTreino()));
+return top+`<div class=tabs>${T2('treinos','Treinos')}${T2('resumo','Resumo')}</div>`+(S.tab==='resumo'?vResumo():vTreinos())}
+function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done&&d.data.workoutId===S.wid);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,workoutId:S.wid,date:today(),sets:{}});s=DB.docs[id]}return s}
 function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
-function vTreino(){const pl=stu().data.plan||[];if(!pl.length)return '<p class=mu>Monte a ficha na aba Ficha.</p>';const cs=curSes();
-return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span><span></span></div>';
+function vTreino(){const pl=wpl();if(!pl.length)return '<p class=mu>Monte este treino na aba Ficha.</p>';const cs=curSes(),ls=sessions(S.sid).filter(x=>x.data.workoutId===S.wid&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
+return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b><br><span class=mu>${ls?'Treino anterior: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Primeira vez neste treino'}</span></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span><span></span></div>';
 for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span>${['kg','reps'].map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k} value="${esc(c[k]??'')}" placeholder="${esc(p[k]??'')}">`).join('')}${rpeSel(e.id,i,c.rpe,p.rpe)}<button class=x data-a=delset data-e="${e.id}" data-i=${i} aria-label="Excluir série">✕</button></div>`}
 return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)}${e.equip?' · '+esc(e.equip):''}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
 function rowsN(id,cs){const d=cs&&cs.data,a=(d&&d.sets[id])||[],r=d&&d.rows&&d.rows[id];return Math.max(r??Math.max(last(id).a.length,1),a.length)}
 function noteUI(e,cs){const t=(cs&&cs.data.notes||{})[e.id]||'';return S.nt===e.id?`<textarea data-n="${e.id}" rows="1" placeholder="Observação">${esc(t)}</textarea><button class=lk2 data-a=notedone>Fechar</button>`:t?`<div class=mu style="margin-top:6px">Obs.: ${esc(t)} <button class=lk2 data-a=note data-e="${e.id}">editar</button></div>`:`<button class=lk2 data-a=note data-e="${e.id}">+ observação</button>`}
-function vFicha(){const pl=stu().data.plan||[];return '<p class=mu>Nome · grupo muscular · equipamento</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><select data-p=equip data-i=${i}><option value="">Equipamento</option>${EQ.map(g=>`<option${g===e.equip?' selected':''}>${g}</option>`).join('')}</select></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
+function vFicha(){const pl=wpl();return '<p class=mu>Nome · grupo muscular · equipamento</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><select data-p=equip data-i=${i}><option value="">Equipamento</option>${EQ.map(g=>`<option${g===e.equip?' selected':''}>${g}</option>`).join('')}</select></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><div class=tabs style="margin-top:20px"><button data-a=renw>Renomear treino</button><button class=lk data-a=delw>Excluir treino</button></div>'}
 function range(){const n=new Date();let a,b;if(S.per==='w'){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+S.off*7),k=(d.getDay()+6)%7;a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k);b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)}else{a=new Date(n.getFullYear(),n.getMonth()+S.off,1);b=new Date(a.getFullYear(),a.getMonth()+1,0)}return[a,b]}
 const bar=(l,r,p)=>`<div class=bar style="--w:${p}%"><span>${esc(l)}</span><span>${r}</span></div>`;
 const R=[['10','10 · Esforço máximo'],['9.5','9,5 · Não faria nenhuma'],['9','9 · Faria mais 1'],['8.5','8,5 · Faria mais 1 ou 2'],['8','8 · Faria mais 2'],['7.5','7,5 · Faria mais 2 ou 3'],['7','7 · Faria mais 3'],['6','6 · Faria mais 4 ou +']];
@@ -110,12 +117,12 @@ const ln=D.map(x=>`<polyline fill="none" stroke="${x.c}" stroke-width="2.5" stro
 const lg=D.length>1?'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px">'+D.map(x=>`<span class=mu><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</span>`).join('')+'</div>':'';
 return `<svg viewBox="0 0 ${W} ${H}" width="100%">${gr}${xl}${ln}</svg>`+lg}
 function tbl(L,D){const c='style="text-align:right;padding:3px 4px"';return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><tr><th></th>'+L.map(x=>`<th ${c}>${x}</th>`).join('')+`<th ${c}>Total</th></tr>`+D.map(x=>`<tr><td style="padding:3px 4px;white-space:nowrap"><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</td>`+x.v.map(v=>`<td ${c}>${fk(v)}</td>`).join('')+`<td ${c}><b>${fk(x.v.reduce((p,q)=>p+q,0))}</b></td></tr>`).join('')+'</table></div>'}
-function vFim(){const s=DB.docs[S.rid];if(!s)return '';const pl=stu().data.plan||[],nm={},gm={},ex=[],gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});let V=0,N=0;
+function vFim(){const s=DB.docs[S.rid];if(!s)return '';const pl=allPl(),nm={},gm={},ex=[],gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});let V=0,N=0;
 Object.entries(s.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const r=arr.map(x=>+x.rpe).filter(x=>x>0),g=gm[id]||'Outro';ex.push([nm[id]||'(removido)',exVol(arr),n,r.length?r.reduce((p,q)=>p+q,0)/r.length:0]);gr[g]=(gr[g]||0)+n;V+=exVol(arr);N+=n});
 ex.sort((x,y)=>y[1]-x[1]);const pv=sessions(S.sid).filter(x=>x.data.date<s.data.date).sort((x,y)=>x.data.date<y.data.date?1:-1)[0],pvV=pv?sesVol(pv):0,dl=pvV?` · ${V>=pvV?'+':''}${Math.round((V/pvV-1)*100)}% vs. treino anterior`:'';
 const rp=ex.filter(x=>x[3]).map(x=>[x[0],x[3]]);
 return `<button data-a=tab data-k=treino>‹ Novo treino</button><div class=card><b>Relatório do treino · ${fd(s.data.date)}</b><br><b class=big>${fmt(V)} kg</b> <span class=mu>${N} séries${dl}</span></div><div class=card><b>Volume por exercício</b>${hbars(ex.map(x=>[x[0],x[1]]),n=>fmt(n)+' kg','#f2b84b')}</div><div class=card><b>Séries por exercício</b>${hbars(ex.map(x=>[x[0],x[2]]),n=>n+' séries','#6fcf97')}</div>`+(rp.length?`<div class=card><b>RPE médio</b>${hbars(rp,n=>n.toFixed(1).replace('.',','),'#b48cf2')}</div>`:'')+`<div class=card><b>Séries por grupo</b>${donut(Object.entries(gr).sort((x,y)=>y[1]-x[1]),n=>n+' séries')}</div>`}
-function vResumo(){const[a,b]=range(),A=ds(a),B=ds(b),pl=stu().data.plan||[],gm={},nm={};pl.forEach(e=>{gm[e.id]=e.group;nm[e.id]=e.name||'(sem nome)'});
+function vResumo(){const[a,b]=range(),A=ds(a),B=ds(b),pl=allPl(),gm={},nm={};pl.forEach(e=>{gm[e.id]=e.group;nm[e.id]=e.name||'(sem nome)'});
 const ss=sessions(S.sid).filter(s=>s.data.date>=A&&s.data.date<=B).sort((x,y)=>x.data.date<y.data.date?-1:1),ex={},gr={};let V=0,N=0;
 ss.forEach(s=>Object.entries(s.data.sets).forEach(([id,arr])=>{const v=exVol(arr),n=exN(arr),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)';(ex[m]??={v:0,n:0}).v+=v;ex[m].n+=n;(gr[g]??={v:0,n:0}).v+=v;gr[g].n+=n;V+=v;N+=n}));
 const lbl=S.per==='w'?fd(A)+' – '+fd(B):a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),u=S.sub==='ser'?'n':'v',sfx=S.sub==='ser'?' séries':' kg';
@@ -138,15 +145,19 @@ function exp(){const o=Object.fromEntries(Object.entries(DB.docs).filter(([,d])=
 async function imp(f){if(!f)return;try{Object.values(JSON.parse(await f.text())).forEach(d=>{DB.docs[d.id]={...d,dirty:1}});persist();render();syncSoon()}catch{alert('Arquivo inválido')}}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,k=t.dataset.k,i=+t.dataset.i;
 if(a==='login')return login();
-if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treino'}
-else if(a==='back')S.v='home';
+if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treinos';S.wid=null}
+else if(a==='openw'){S.wid=t.dataset.id;S.tab='treino'}
+else if(a==='addw'){const n=prompt('Nome do treino (ex.: Treino A, Peito e tríceps)');if(!n||!n.trim())return;const st=stu(),id=uid().slice(0,8);st.data.workouts.push({id,name:n.trim(),plan:[]});put(st.id,'student',st.data);S.wid=id;S.tab='ficha'}
+else if(a==='renw'){const n=prompt('Nome do treino',W().name);if(!n||!n.trim())return;const st=stu();W().name=n.trim();put(st.id,'student',st.data)}
+else if(a==='delw'){if(!confirm('Excluir este treino e o histórico dele?'))return;const st=stu(),id=S.wid;sessions(S.sid).filter(x=>x.data.workoutId===id).forEach(x=>del(x.id));st.data.workouts=st.data.workouts.filter(w=>w.id!==id);put(st.id,'student',st.data);S.wid=null;S.tab='treinos'}
+else if(a==='back'){if(S.wid){S.wid=null;S.tab='treinos'}else S.v='home'}
 else if(a==='tab')S.tab=k;
 else if(a==='sub')S.sub=k;
 else if(a==='per'){S.per=k;S.off=0}
 else if(a==='nav')S.off+=+k;
-else if(a==='addst'){const n=prompt('Nome do aluno');if(!n||!n.trim())return;put(uid(),'student',{name:n.trim(),plan:[]})}
-else if(a==='addex'){const s=stu();s.data.plan.push({id:uid().slice(0,8),name:'',group:'Peito',equip:''});put(s.id,'student',s.data)}
-else if(a==='rmex'){const s=stu();s.data.plan.splice(i,1);put(s.id,'student',s.data)}
+else if(a==='addst'){const n=prompt('Nome do aluno');if(!n||!n.trim())return;put(uid(),'student',{name:n.trim(),workouts:[]})}
+else if(a==='addex'){const s=stu();W().plan.push({id:uid().slice(0,8),name:'',group:'Peito',equip:''});put(s.id,'student',s.data)}
+else if(a==='rmex'){const s=stu();W().plan.splice(i,1);put(s.id,'student',s.data)}
 else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,n=rowsN(id,cs);(cs.data.rows??={})[id]=n+1;put(cs.id,'session',cs.data)}
 else if(a==='delset'){const cs=curSes(true),id=t.dataset.e,arr=(cs.data.sets[id]??=[]),n=rowsN(id,cs),x=arr[i];if(x&&(x.kg||x.reps||x.rpe)&&!confirm('Excluir esta série?'))return;if(n<=1)arr.splice(0);else{if(i<arr.length)arr.splice(i,1);(cs.data.rows??={})[id]=n-1}put(cs.id,'session',cs.data)}
 else if(a==='delst'){if(!confirm('Excluir este aluno e todo o histórico dele?'))return;sessions(S.sid).forEach(s=>del(s.id));del(S.sid);S.v='home'}
@@ -159,8 +170,8 @@ else if(a==='logout'){if(!confirm('Sair? O que não foi sincronizado continua no
 render();if(S.nt){const x=$('textarea');if(x){x.style.height='auto';x.style.height=x.scrollHeight+'px';x.focus()}}});
 document.addEventListener('input',e=>{const t=e.target,k=t.dataset.k;if(!k||!t.dataset.e)return;const cs=curSes(true),arr=(cs.data.sets[t.dataset.e]??=[]),i=+t.dataset.i;while(arr.length<=i)arr.push({});arr[i][k]=t.value.replace(',','.');put(cs.id,'session',cs.data);refresh()});
 document.addEventListener('input',e=>{const t=e.target,id=t.dataset.n;if(!id)return;const cs=curSes(true);(cs.data.notes??={})[id]=t.value;put(cs.id,'session',cs.data);t.style.height='auto';t.style.height=t.scrollHeight+'px'});
-document.addEventListener('change',e=>{const t=e.target;if(t.id==='imp')return imp(t.files[0]);const p=t.dataset.p;if(!p)return;const s=stu();s.data.plan[+t.dataset.i][p]=p==='sets'?(+t.value||0):t.value;put(s.id,'student',s.data)});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='imp')return imp(t.files[0]);const p=t.dataset.p;if(!p)return;const s=stu();W().plan[+t.dataset.i][p]=p==='sets'?(+t.value||0):t.value;put(s.id,'student',s.data)});
 addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
-render();sync();
+migAll();render();sync();
 </script></body></html>

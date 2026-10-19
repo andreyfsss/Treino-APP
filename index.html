@@ -22,7 +22,7 @@ input::placeholder{color:#59626d}
 button{background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px 14px;font:inherit}
 button.pri{background:var(--ac);color:#1a1405;width:100%;margin-top:8px;font-weight:600}
 button.lk{background:none;color:var(--er);padding:6px 0}
-.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1}.tabs .on{background:var(--ac);color:#1a1405;font-weight:600}
+.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1;padding:10px 4px}.tabs .on{background:var(--ac);color:#1a1405;font-weight:600}
 .bar{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;margin:4px 0;border-radius:6px;background:linear-gradient(90deg,var(--p2) var(--w),transparent var(--w))}
 .bar span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
 </style></head><body><div id="app"></div>
@@ -32,7 +32,7 @@ const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let DB=JSON.parse(localStorage.getItem('tdb')||'{"docs":{},"pull":""}'),AU=JSON.parse(localStorage.getItem('tau')||'null');
-const S={v:'home',sid:null,tab:'treino',sub:'vol',per:'w',off:0,msg:'',st:''};
+const S={v:'home',sid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:''};
 const persist=()=>localStorage.setItem('tdb',JSON.stringify(DB));
 const ts=s=>Date.parse(s);
 function put(id,kind,data){const d=DB.docs[id]||{id,kind};d.data=data;d.updated_at=new Date().toISOString();d.dirty=1;d.deleted=!!d.deleted;DB.docs[id]=d;persist();syncSoon()}
@@ -71,13 +71,13 @@ function loginV(){return `<h1>Treino</h1><div class=card><input id=em type=email
 function home(){const L=list('student').sort((a,b)=>a.data.name.localeCompare(b.data.name));
 return `<div class=eh><h1>Alunos</h1><span class=chip id=st></span></div>`+(L.map(s=>`<button class=card style="width:100%;text-align:left" data-a=open data-id="${s.id}"><b>${esc(s.data.name)}</b> <span class=mu>${(s.data.plan||[]).length} exercícios</span></button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')
 +`<button class=pri data-a=addst>+ Aluno</button><div class=tabs><button data-a=sync>Sincronizar</button><button data-a=export>Backup</button><button onclick="$('#imp').click()">Restaurar</button><button data-a=logout>Sair</button></div><input id=imp type=file accept=.json hidden>`}
-function sv(){const st=stu();return `<div class=eh><button data-a=back>‹ Alunos</button><span class=chip id=st></span></div><h1>${esc(st.data.name)}</h1><div class=tabs>${[['treino','Treino'],['ficha','Ficha'],['resumo','Resumo']].map(([k,l])=>`<button data-a=tab data-k=${k} class="${S.tab===k?'on':''}">${l}</button>`).join('')}</div>`+(S.tab==='treino'?vTreino():S.tab==='ficha'?vFicha():vResumo())}
-function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today());if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,date:today(),sets:{}});s=DB.docs[id]}return s}
-function last(id){const s=sessions(S.sid).filter(x=>x.data.date<today()&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
+function sv(){const st=stu();return `<div class=eh><button data-a=back>‹ Alunos</button><span class=chip id=st></span></div><h1>${esc(st.data.name)}</h1><div class=tabs>${[['treino','Treino'],['ficha','Ficha'],['resumo','Resumo']].map(([k,l])=>`<button data-a=tab data-k=${k} class="${S.tab===k?'on':''}">${l}</button>`).join('')}</div>`+(S.tab==='treino'?vTreino():S.tab==='ficha'?vFicha():S.tab==='fim'?vFim():vResumo())}
+function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,date:today(),sets:{}});s=DB.docs[id]}return s}
+function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
 function vTreino(){const pl=stu().data.plan||[];if(!pl.length)return '<p class=mu>Monte a ficha na aba Ficha.</p>';const cs=curSes();
 return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=Math.max(+e.sets||0,cur.length);let rows='<div class=sr><span></span><span>kg</span><span>reps</span><span>RPE</span></div>';
 for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span>${['kg','reps'].map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k} value="${esc(c[k]??'')}" placeholder="${esc(p[k]??'')}">`).join('')}${rpeSel(e.id,i,c.rpe,p.rpe)}</div>`}
-return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)} · ${e.sets}×${esc(e.reps)}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')}
+return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group)} · ${e.sets}×${esc(e.reps)}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>`${x.kg||0}×${x.reps||0}${x.rpe?' @'+x.rpe:''}`).join(' · '):'Sem treino anterior'}</div>${rows}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu>Volume: <b data-v="${e.id}">${fmt(exVol(cur))}</b> kg</span></div></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
 function vFicha(){const pl=stu().data.plan||[];return '<p class=mu>Nome · grupo muscular · séries · repetições</p>'+pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><div class=sr2><select data-p=group data-i=${i}>${G.map(g=>`<option${g===e.group?' selected':''}>${g}</option>`).join('')}</select><input data-p=sets data-i=${i} inputmode=numeric value="${e.sets}"><input data-p=reps data-i=${i} value="${esc(e.reps)}"></div><button class=lk data-a=rmex data-i=${i}>Remover exercício</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
 function range(){const n=new Date();let a,b;if(S.per==='w'){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+S.off*7),k=(d.getDay()+6)%7;a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k);b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)}else{a=new Date(n.getFullYear(),n.getMonth()+S.off,1);b=new Date(a.getFullYear(),a.getMonth()+1,0)}return[a,b]}
 const bar=(l,r,p)=>`<div class=bar style="--w:${p}%"><span>${esc(l)}</span><span>${r}</span></div>`;
@@ -94,14 +94,30 @@ function donut(it,fv){const t=it.reduce((n,x)=>n+x[1],0)||1,r=55,c=70;let a=-Mat
 const P=q=>[c+r*Math.cos(q),c+r*Math.sin(q)],arcs=it.map((x,i)=>{const f=x[1]/t,b=a+f*2*Math.PI,[x1,y1]=P(a),[x2,y2]=P(b-.0001);a=b;return f>0?`<path d="M${x1} ${y1}A${r} ${r} 0 ${f>.5?1:0} 1 ${x2} ${y2}" fill="none" stroke="${COL[i%COL.length]}" stroke-width="26"/>`:''}).join('');
 const lg=it.map((x,i)=>`<div class=eh><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${COL[i%COL.length]};margin-right:6px"></i>${esc(x[0])}</span><span class=mu>${fv(x[1])} · ${Math.round(x[1]/t*100)}%</span></div>`).join('');
 return `<div style="display:flex;gap:14px;align-items:center"><svg viewBox="0 0 140 140" width="140" height="140" style="flex:none">${arcs}</svg><div style="flex:1">${lg}</div></div>`}
+function lines(ss,a,b,pl){const w=S.per==='w',nb=w?7:Math.ceil(b.getDate()/7),V=Array(nb).fill(0),N=Array(nb).fill(0),gm={},G={};pl.forEach(e=>gm[e.id]=e.group);
+ss.forEach(s=>{const i=w?Math.round((Date.parse(s.data.date+'T12:00')-Date.parse(ds(a)+'T12:00'))/864e5):Math.floor((+s.data.date.slice(8)-1)/7);Object.entries(s.data.sets).forEach(([id,arr])=>{const g=gm[id]||'Outro';V[i]+=exVol(arr);N[i]+=exN(arr);(G[g]??=Array(nb).fill(0))[i]+=exN(arr)})});
+return{L:w?['Seg','Ter','Qua','Qui','Sex','Sáb','Dom']:V.map((_,i)=>(i*7+1)+'–'+Math.min(i*7+7,b.getDate())),V,N,G}}
+function lineC(L,D){const W=360,H=190,l=36,r=12,t=14,bt=26,m=Math.max(1,...D.flatMap(x=>x.v)),X=i=>l+(W-l-r)*(L.length>1?i/(L.length-1):.5),Y=v=>t+(H-t-bt)*(1-v/m);
+const gr=[0,.5,1].map(f=>`<line x1="${l}" x2="${W-r}" y1="${Y(m*f)}" y2="${Y(m*f)}" stroke="#2c3541"/><text x="${l-4}" y="${Y(m*f)+3}" text-anchor="end" font-size="9" fill="#8f98a3">${fk(m*f)}</text>`).join('');
+const xl=L.map((x,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9" fill="#8f98a3">${x}</text>`).join('');
+const ln=D.map(x=>`<polyline fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round" points="${x.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+x.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${x.c}"/>`).join('')).join('');
+const lg=D.length>1?'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px">'+D.map(x=>`<span class=mu><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</span>`).join('')+'</div>':'';
+return `<svg viewBox="0 0 ${W} ${H}" width="100%">${gr}${xl}${ln}</svg>`+lg}
+function vFim(){const s=DB.docs[S.rid];if(!s)return '';const pl=stu().data.plan||[],nm={},gm={},ex=[],gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});let V=0,N=0;
+Object.entries(s.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const r=arr.map(x=>+x.rpe).filter(x=>x>0),g=gm[id]||'Outro';ex.push([nm[id]||'(removido)',exVol(arr),n,r.length?r.reduce((p,q)=>p+q,0)/r.length:0]);gr[g]=(gr[g]||0)+n;V+=exVol(arr);N+=n});
+ex.sort((x,y)=>y[1]-x[1]);const pv=sessions(S.sid).filter(x=>x.data.date<s.data.date).sort((x,y)=>x.data.date<y.data.date?1:-1)[0],pvV=pv?sesVol(pv):0,dl=pvV?` · ${V>=pvV?'+':''}${Math.round((V/pvV-1)*100)}% vs. treino anterior`:'';
+const rp=ex.filter(x=>x[3]).map(x=>[x[0],x[3]]);
+return `<button data-a=tab data-k=treino>‹ Novo treino</button><div class=card><b>Relatório do treino · ${fd(s.data.date)}</b><br><b class=big>${fmt(V)} kg</b> <span class=mu>${N} séries${dl}</span></div><div class=card><b>Volume por exercício</b>${hbars(ex.map(x=>[x[0],x[1]]),n=>fmt(n)+' kg','#f2b84b')}</div><div class=card><b>Séries por exercício</b>${hbars(ex.map(x=>[x[0],x[2]]),n=>n+' séries','#6fcf97')}</div>`+(rp.length?`<div class=card><b>RPE médio</b>${hbars(rp,n=>n.toFixed(1).replace('.',','),'#b48cf2')}</div>`:'')+`<div class=card><b>Séries por grupo</b>${donut(Object.entries(gr).sort((x,y)=>y[1]-x[1]),n=>n+' séries')}</div>`}
 function vResumo(){const[a,b]=range(),A=ds(a),B=ds(b),pl=stu().data.plan||[],gm={},nm={};pl.forEach(e=>{gm[e.id]=e.group;nm[e.id]=e.name||'(sem nome)'});
 const ss=sessions(S.sid).filter(s=>s.data.date>=A&&s.data.date<=B).sort((x,y)=>x.data.date<y.data.date?-1:1),ex={},gr={};let V=0,N=0;
 ss.forEach(s=>Object.entries(s.data.sets).forEach(([id,arr])=>{const v=exVol(arr),n=exN(arr),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)';(ex[m]??={v:0,n:0}).v+=v;ex[m].n+=n;(gr[g]??={v:0,n:0}).v+=v;gr[g].n+=n;V+=v;N+=n}));
 const lbl=S.per==='w'?fd(A)+' – '+fd(B):a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),u=S.sub==='ser'?'n':'v',sfx=S.sub==='ser'?' séries':' kg';
 const T=(k,l,on,act)=>`<button data-a=${act} data-k=${k} class="${on?'on':''}">${l}</button>`;
-let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}</div>`;
+let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}${T('rel','Relatório',S.sub==='rel','sub')}</div>`;
 if(!ss.length)return h+'<p class=mu>Nenhum treino neste período.</p>';
 const rel=(o,key)=>{const m=Math.max(1,...Object.values(o).map(x=>x[key]));return Object.entries(o).sort((x,y)=>y[1][key]-x[1][key]).map(([k,x])=>bar(k,key==='n'?x.n+' séries':fmt(x.v)+' kg',x[key]/m*100)).join('')};
+if(S.sub==='rel'){const o=lines(ss,a,b,pl),gk=Object.entries(o.G).sort((x,y)=>y[1].reduce((p,q)=>p+q,0)-x[1].reduce((p,q)=>p+q,0)).slice(0,6);
+return h+`<div class=card><b>Relatório ${S.per==='w'?'da semana':'do mês'} · ${esc(lbl)}</b><p class=mu>${ss.length} treino(s) · ${fmt(V)} kg · ${N} séries · ${S.per==='w'?'por dia':'em blocos de 7 dias'}</p></div><div class=card><b>Volume (kg)</b>${lineC(o.L,[{n:'Volume',c:COL[0],v:o.V}])}</div><div class=card><b>Séries</b>${lineC(o.L,[{n:'Séries',c:COL[2],v:o.N}])}</div><div class=card><b>Séries por grupo</b>${lineC(o.L,gk.map(([n,v],i)=>({n,c:COL[i],v})))}</div>`}
 if(S.sub==='grp')return h+`<div class=card><b>Séries por grupo</b>${donut(ent(gr,'n'),n=>n+' séries')}</div><div class=card><b>Volume por grupo</b>${hbars(ent(gr,'v'),n=>fmt(n)+' kg','#6aa6ff')}</div>`;
 const tot=S.sub==='ser'?N+' séries':fmt(V)+' kg',per=cols(ss.map(s=>[fd(s.data.date),S.sub==='ser'?sesN(s):sesVol(s)]));
 return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><br><b class=big>${tot}</b></div><div class=card><b>Por treino</b>${per}</div><div class=card><b>Por exercício</b>${hbars(ent(ex,u),S.sub==='ser'?n=>n+' séries':n=>fmt(n)+' kg',S.sub==='ser'?'#6fcf97':'#f2b84b')}</div>`}
@@ -126,6 +142,7 @@ else if(a==='addex'){const s=stu();s.data.plan.push({id:uid().slice(0,8),name:''
 else if(a==='rmex'){const s=stu();s.data.plan.splice(i,1);put(s.id,'student',s.data)}
 else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,e=stu().data.plan.find(x=>x.id===id),arr=(cs.data.sets[id]??=[]),n=Math.max(+e.sets||0,arr.length);while(arr.length<n+1)arr.push({});put(cs.id,'session',cs.data)}
 else if(a==='delst'){if(!confirm('Excluir este aluno e todo o histórico dele?'))return;sessions(S.sid).forEach(s=>del(s.id));del(S.sid);S.v='home'}
+else if(a==='finish'){const cs=curSes();if(!cs||!sesN(cs)){alert('Registre ao menos uma série antes de finalizar.');return}if(!confirm('Finalizar o treino e gerar o relatório?'))return;cs.data.done=true;cs.data.endedAt=new Date().toISOString();put(cs.id,'session',cs.data);S.rid=cs.id;S.tab='fim'}
 else if(a==='sync')return sync();
 else if(a==='export')return exp();
 else if(a==='logout'){if(!confirm('Sair? O que não foi sincronizado continua no aparelho.'))return;AU=null;localStorage.removeItem('tau')}

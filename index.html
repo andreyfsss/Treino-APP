@@ -80,7 +80,25 @@ list('session').forEach(x=>{if(!x.data.workoutId){const st=DB.docs[x.data.studen
 function loginV(){return `<h1>Treino</h1><div class=card><input id=em type=email placeholder="E-mail" autocomplete=username><div style="height:8px"></div><input id=pw type=password placeholder="Senha" autocomplete=current-password><button class=pri data-a=login>Entrar</button><p class=mu>${esc(S.msg)}</p></div>`}
 function home(){const L=list('student').sort((a,b)=>a.data.name.localeCompare(b.data.name));
 return `<h1 style="text-align:center;margin-bottom:2px">Alunos</h1>`+(L.map(s=>`<button class=card style="width:100%;text-align:left" data-a=open data-id="${s.id}"><b>${esc(s.data.name)}</b> <span class=mu>${(s.data.workouts||[]).length} treino(s)</span></button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')
-+`<button class=pri data-a=addst>Cadastrar aluno</button><div class=tabs><button data-a=sync>Sincronizar</button><button data-a=export>Backup</button><button onclick="$('#imp').click()">Restaurar</button><button data-a=logout>Sair</button></div><input id=imp type=file accept=.json hidden>`}
++`<button class=pri data-a=addst>Cadastrar aluno</button><button style="width:100%;margin-top:8px" data-a=wk>Relatórios da semana</button><div class=tabs><button data-a=sync>Sincronizar</button><button data-a=export>Backup</button><button onclick="$('#imp').click()">Restaurar</button><button data-a=logout>Sair</button></div><input id=imp type=file accept=.json hidden>`}
+const wr=()=>{const n=new Date(),k=(n.getDay()+6)%7,a=new Date(n.getFullYear(),n.getMonth(),n.getDate()-k);return[a,new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)]};
+function agg(st,a,b){const A=ds(a),B=ds(b),pl=(st.data.workouts||[]).flatMap(w=>w.plan),nm={},gm={},ws={},ex={},gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});(st.data.workouts||[]).forEach(w=>ws[w.id]=w.name);
+const ss=sessions(st.id).filter(x=>x.data.date>=A&&x.data.date<=B&&sesN(x)>0).sort((x,y)=>x.data.date<y.data.date?-1:1);let V=0,N=0;
+ss.forEach(x=>Object.entries(x.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const v=exVol(arr),r=arr.map(q=>+q.rpe).filter(q=>q>0),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)',e=(ex[m]??={v:0,n:0,r:[]}),q=(gr[g]??={v:0,n:0});e.v+=v;e.n+=n;e.r.push(...r);q.v+=v;q.n+=n;V+=v;N+=n}));
+return{ss,ex,gr,V,N,ws}}
+function repText(st,a,b,w){const o=agg(st,a,b),pa=w?new Date(a.getFullYear(),a.getMonth(),a.getDate()-7):new Date(a.getFullYear(),a.getMonth()-1,1),pb=w?new Date(b.getFullYear(),b.getMonth(),b.getDate()-7):new Date(a.getFullYear(),a.getMonth(),0),p=agg(st,pa,pb);
+const L=[`Relatório ${w?'da semana':'do mês'} · ${st.data.name}`,fd(ds(a))+' a '+fd(ds(b)),''];
+if(!o.ss.length){L.push('Nenhum treino registrado no período.');return L.join('\n')}
+L.push(`Treinos: ${o.ss.length} · Volume: ${fmt(o.V)} kg · Séries: ${o.N}`);
+if(p.V)L.push(`Volume vs. período anterior: ${o.V>=p.V?'+':''}${Math.round((o.V/p.V-1)*100)}% (${fmt(p.V)} kg)`);
+L.push('','Treinos:',...o.ss.map(x=>`- ${fd(x.data.date)} ${o.ws[x.data.workoutId]||'Treino'}: ${fmt(sesVol(x))} kg, ${sesN(x)} séries`));
+L.push('','Por grupo muscular:',...Object.entries(o.gr).sort((x,y)=>y[1].n-x[1].n).map(([g,x])=>`- ${g}: ${x.n} séries, ${fmt(x.v)} kg`));
+L.push('','Por exercício:',...Object.entries(o.ex).sort((x,y)=>y[1].v-x[1].v).map(([k,x])=>`- ${k}: ${x.n} séries, ${fmt(x.v)} kg${x.r.length?', RPE médio '+(x.r.reduce((m,n)=>m+n,0)/x.r.length).toFixed(1).replace('.',','):''}`));
+return L.join('\n')}
+async function share(text){try{if(navigator.share){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
+try{await navigator.clipboard.writeText(text);alert('Relatório copiado. Cole no WhatsApp ou no e-mail.')}catch{prompt('Copie o relatório:',text)}}
+function wkV(){const[a,b]=wr(),L=list('student').sort((x,y)=>x.data.name.localeCompare(y.data.name));
+return `<div class=eh><button data-a=back>‹ Alunos</button></div><h1 style="text-align:center">Relatórios da semana</h1><p class=mu style="text-align:center">${fd(ds(a))} a ${fd(ds(b))}</p>`+(L.map(t=>{const o=agg(t,a,b);return `<div class=card><div class=eh><b>${esc(t.data.name)}</b><span class=mu>${o.ss.length} treino(s) · ${fmt(o.V)} kg</span></div><button class=pri data-a=shst data-id="${t.id}">Enviar relatório</button></div>`}).join('')||'<p class=mu>Nenhum aluno.</p>')}
 function vHist(){const ws={};(stu().data.workouts||[]).forEach(w=>ws[w.id]=w.name);
 const L=sessions(S.sid).sort((a,b)=>a.data.date===b.data.date?(a.updated_at<b.updated_at?1:-1):(a.data.date<b.data.date?1:-1));
 return '<p class=mu>Corrija a data ou exclua treinos registrados por engano.</p>'+(L.map(x=>`<div class=card><div class=eh><b>${esc(ws[x.data.workoutId]||'Treino')}</b><span class=mu>${x.data.done?'finalizado':'em aberto'}</span></div><div class=mu>${fmt(sesVol(x))} kg · ${sesN(x)} séries</div><div class=eh style="margin-top:8px"><input type=date data-sd="${x.id}" value="${x.data.date}" style="max-width:170px"><button class=lk data-a=delses data-id="${x.id}">Excluir</button></div></div>`).join('')||'<p class=mu>Nenhum treino registrado.</p>')}
@@ -134,7 +152,7 @@ const ss=sessions(S.sid).filter(s=>s.data.date>=A&&s.data.date<=B).sort((x,y)=>x
 ss.forEach(s=>Object.entries(s.data.sets).forEach(([id,arr])=>{const v=exVol(arr),n=exN(arr),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)';(ex[m]??={v:0,n:0}).v+=v;ex[m].n+=n;(gr[g]??={v:0,n:0}).v+=v;gr[g].n+=n;V+=v;N+=n}));
 const lbl=S.per==='w'?fd(A)+' – '+fd(B):a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),u=S.sub==='ser'?'n':'v',sfx=S.sub==='ser'?' séries':' kg';
 const T=(k,l,on,act)=>`<button data-a=${act} data-k=${k} class="${on?'on':''}">${l}</button>`;
-let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}${T('rel','Relatório',S.sub==='rel','sub')}</div>`;
+let h=`<div class=tabs>${T('w','Semana',S.per==='w','per')}${T('m','Mês',S.per==='m','per')}</div><div class=eh><button data-a=nav data-k=-1>‹</button><b>${esc(lbl)}</b><button data-a=nav data-k=1>›</button></div><div class=tabs>${T('vol','Volume',S.sub==='vol','sub')}${T('ser','Séries',S.sub==='ser','sub')}${T('grp','Grupos',S.sub==='grp','sub')}${T('rel','Relatório',S.sub==='rel','sub')}</div><button class=pri data-a=shrep>Enviar relatório ${S.per==='w'?'da semana':'do mês'}</button>`;
 if(!ss.length)return h+'<p class=mu>Nenhum treino neste período.</p>';
 const rel=(o,key)=>{const m=Math.max(1,...Object.values(o).map(x=>x[key]));return Object.entries(o).sort((x,y)=>y[1][key]-x[1][key]).map(([k,x])=>bar(k,key==='n'?x.n+' séries':fmt(x.v)+' kg',x[key]/m*100)).join('')};
 if(S.sub==='rel'){const o=lines(ss,a,b,pl),gk=Object.entries(o.G).sort((x,y)=>y[1].reduce((p,q)=>p+q,0)-x[1].reduce((p,q)=>p+q,0));
@@ -142,7 +160,7 @@ return h+`<div class=card><b>Relatório ${S.per==='w'?'da semana':'do mês'} · 
 if(S.sub==='grp')return h+`<div class=card><b>Séries por grupo</b>${donut(ent(gr,'n'),n=>n+' séries')}</div><div class=card><b>Volume por grupo</b>${hbars(ent(gr,'v'),n=>fmt(n)+' kg','#6aa6ff')}</div>`;
 const tot=S.sub==='ser'?N+' séries':fmt(V)+' kg',per=cols(ss.map(s=>[fd(s.data.date),S.sub==='ser'?sesN(s):sesVol(s)]));
 return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><br><b class=big>${tot}</b></div><div class=card><b>Por treino</b>${per}</div><div class=card><b>Por exercício</b>${hbars(ent(ex,u),S.sub==='ser'?n=>n+' séries':n=>fmt(n)+' kg',S.sub==='ser'?'#6fcf97':'#f2b84b')}</div>`}
-function render(){const app=$('#app');app.innerHTML=!AU?loginV():S.v==='home'||!stu()?home():sv();stat()}
+function render(){const app=$('#app');app.innerHTML=!AU?loginV():S.v==='wk'?wkV():S.v==='home'||!stu()?home():sv();stat()}
 function refresh(){const cs=curSes();document.querySelectorAll('[data-v]').forEach(n=>{n.textContent=n.dataset.v==='tot'?fmt(cs?sesVol(cs):0)+' kg':fmt(exVol(cs&&cs.data.sets[n.dataset.v]))});stat()}
 
 /* ---- ações ---- */
@@ -173,6 +191,9 @@ else if(a==='finish'){const cs=curSes();if(!cs){alert('Nada foi registrado hoje 
 else if(a==='note')S.nt=t.dataset.e;
 else if(a==='notedone')S.nt=null;
 else if(a==='delses'){const x=DB.docs[t.dataset.id];if(!confirm('Excluir o treino de '+fd(x.data.date)+' ('+fmt(sesVol(x))+' kg)?'))return;del(x.id)}
+else if(a==='wk')S.v='wk';
+else if(a==='shst'){const[x1,x2]=wr();return share(repText(DB.docs[t.dataset.id],x1,x2,true))}
+else if(a==='shrep'){const[x1,x2]=range();return share(repText(stu(),x1,x2,S.per==='w'))}
 else if(a==='sync')return sync();
 else if(a==='export')return exp();
 else if(a==='logout'){if(!confirm('Sair? O que não foi sincronizado continua no aparelho.'))return;AU=null;localStorage.removeItem('tau')}

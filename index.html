@@ -15,7 +15,7 @@ h1{font-size:22px;margin:6px 0 12px}
 .card{background:var(--p);border-radius:10px;padding:12px;margin:10px 0;color:inherit;border:0}
 .big{font-size:26px;font-variant-numeric:tabular-nums;color:var(--ac)}
 .eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.sr{display:grid;grid-template-columns:22px 92px 1fr 1fr 2.2fr 30px;gap:6px;margin-top:6px;align-items:center;color:var(--mu)}
+.sr{display:grid;grid-template-columns:22px minmax(84px,1fr) 56px 56px 72px 28px;gap:6px;margin-top:6px;align-items:center;color:var(--mu)}
 .sr2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
 textarea{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit;resize:none;overflow:hidden;margin-top:6px}
 button.ed{background:none;color:var(--mu);padding:0 6px;font-size:16px;vertical-align:middle}
@@ -23,12 +23,12 @@ button.ed:hover{color:var(--ac)}
 @media (hover:hover){button.card:hover{background:var(--ac);color:#1a1405}button.card:hover .mu{color:#4a3a10}}
 button.nm{background:none;padding:0;font-weight:700;font-size:16px;text-align:left;color:var(--tx)}
 .sr .ant{background:var(--p2);color:var(--tx);border-radius:8px;padding:6px 4px;font-size:13px;line-height:1.2;text-align:center;min-height:34px;display:flex;align-items:center;justify-content:center}
-.sr input,.sr select{padding:4px 8px;height:34px}
+.sr input,.sr select{padding:4px 4px;height:34px}
+.sr input{text-align:center}
 .sr button.x{padding:4px 2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .chip2{display:inline-flex;align-items:center;gap:6px;background:var(--p2);color:var(--tx);border-radius:8px;padding:8px 10px;font-size:14px}
 .chip2 i{width:12px;height:12px;border-radius:3px;display:inline-block}.chip2.on{outline:2px solid var(--ac)}
-@media (max-width:520px){.sr{grid-template-columns:22px 1.3fr 1fr 1fr 30px}.sr select{grid-column:2/5}.sr button.x{grid-column:5;grid-row:1}.sr .rl{display:none}}
 button.nm:hover{color:var(--ac)}
 #xt{position:absolute;display:none;background:#1d232b;border:1px solid #3a4350;border-radius:10px;padding:10px 14px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.45);min-width:160px;max-width:260px;z-index:3}
 .xh{font-size:14px;letter-spacing:.4px;color:#cfcac0}.xv{font-size:20px;font-weight:700;margin-top:4px}.xs{font-size:12px;color:var(--mu);margin-top:6px;line-height:1.5}
@@ -48,7 +48,7 @@ button.lk{background:none;color:var(--er);padding:6px 0}
 const URL_='https://rvualboqhxyrsxmorphy.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
 const EQ=['Aparelho','Livre','Halter','Barra','Anilha','Kettlebell','Mini band','Elástico','Peso corporal'];
 const MD=[['load','Carga e repetições'],['bw','Sem carga (só repetições)'],['time','Tempo (min e seg)']];
-const HD={load:'<div class=sr><span></span><span>Anterior</span><span>kg</span><span>reps</span><span class=rl>RPE</span><span></span></div>',bw:'<div class=sr><span></span><span>Anterior</span><span style="grid-column:span 2">repetições</span><span class=rl>RPE</span><span></span></div>',time:'<div class=sr><span></span><span>Anterior</span><span>min</span><span>seg</span><span class=rl>RPE</span><span></span></div>'};
+const HD={load:'<div class=sr><span></span><span>Anterior</span><span>kg</span><span>reps</span><span class=rl>RPE</span><span></span></div>',bw:'<div class=sr><span></span><span>Anterior</span><span>reps</span><span></span><span class=rl>RPE</span><span></span></div>',time:'<div class=sr><span></span><span>Anterior</span><span>min</span><span>seg</span><span class=rl>RPE</span><span></span></div>'};
 const fa=(x,m)=>m==='load'?dc(x.kg||0)+'kg × '+(x.reps||0)+(x.rpe?' @'+dc(x.rpe):''):fs(x,m);
 const NF=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:2});
 let XP=[];const XH={W:360,H:240,l:48,r:18,t:22,b:34,X:[],Y:[],m:''};
@@ -155,7 +155,7 @@ function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.
 function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
 function vTreino(){const pl=wpl();if(!pl.length)return '<p class=mu>Monte este treino na aba Ficha.</p>';const cs=curSes(),ls=sessions(S.sid).filter(x=>x.data.workoutId===S.wid&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
 return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b><br><span class=mu>${ls?'Treino anterior: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Primeira vez neste treino'}</span></div>`+LEG+pl.map(e=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs),m=e.mode||'load',F=m==='time'?['mn','sg']:m==='bw'?['reps']:['kg','reps'];let rows=HD[m];
-for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span><span class=ant>${lp.a[i]?esc(fa(p,m)):'–'}</span>${F.map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k}${m==='bw'?' style="grid-column:span 2"':''} value="${esc(c[k]??'')}">`).join('')}${rpeSel(e.id,i,c.rpe)}<button class=x data-a=delset data-e="${e.id}" data-i=${i} aria-label="Excluir série">✕</button></div>`}
+for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><span>${i+1}</span><span class=ant>${lp.a[i]?esc(fa(p,m)):'–'}</span>${F.map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k}  value="${esc(c[k]??'')}">`).join('')}${m==='bw'?'<span></span>':''}${rpeSel(e.id,i,c.rpe)}<button class=x data-a=delset data-e="${e.id}" data-i=${i} aria-label="Excluir série">✕</button></div>`}
 return `<div class=card><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span></div><div class=mu>${lp.d?'Última ('+fd(lp.d)+'): '+lp.a.map(x=>fs(x,m)).join(' · '):'Sem treino anterior'}</div>${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu data-v="${e.id}" data-m="${m}">${exTot(cur,m)}</span></div></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
 function rowsN(id,cs){const d=cs&&cs.data,a=(d&&d.sets[id])||[],r=d&&d.rows&&d.rows[id];return Math.max(r??Math.max(last(id).a.length,1),a.length)}
 function noteUI(e,cs){const t=(cs&&cs.data.notes||{})[e.id]||'';return S.nt===e.id?`<textarea data-n="${e.id}" rows="1" placeholder="Observação">${esc(t)}</textarea><button class=lk2 data-a=notedone>Fechar</button>`:t?`<div class=mu style="margin-top:6px">Obs.: ${esc(t)} <button class=lk2 data-a=note data-e="${e.id}">editar</button></div>`:`<button class=lk2 data-a=note data-e="${e.id}">+ observação</button>`}

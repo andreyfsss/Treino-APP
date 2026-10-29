@@ -3,7 +3,7 @@
 <meta name="theme-color" content="#14181d"><link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Treino">
-<title>AF Pro (teste)</title>
+<title>AF Pro</title>
 <style>
 :root{--bg:#14181d;--p:#1d232b;--p2:#262e38;--tx:#e9e6df;--mu:#8f98a3;--ac:#f2b84b;--er:#ef6b6b}
 *{box-sizing:border-box}
@@ -33,10 +33,9 @@ button.bkb{display:inline-flex;align-items:center;gap:6px;border-radius:999px;pa
 button.tile{background:transparent;text-align:left;display:block;width:100%;color:var(--tx)}button.tile.on{border-color:var(--ac)}
 .pn{margin-top:8px;padding:10px;border:1px solid #5a4a22;background:#1b1f26;border-radius:10px;font-size:13px;line-height:1.6}
 details summary{cursor:pointer}.bl details summary{list-style:none}.bl details summary::-webkit-details-marker{display:none}
-#tb{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom) + 6px);font-size:10px;color:var(--ac);opacity:.8;z-index:5;pointer-events:none}
 .paper,.paper *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .paper{background:#fff;color:#111;border-radius:6px;padding:16px;margin-top:10px;font-size:13px}.paper .ph{background:#111;color:#fff;margin:-16px -16px 12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}.paper h2{margin:2px 0 0;font-size:20px}.paper small{font-size:10px;letter-spacing:.5px;color:#aaa;display:block}.paper .pg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}.paper .pg div{border:1px solid #ddd;border-radius:6px;padding:8px}.paper .pg small{color:#777}.paper .pg b{font-size:18px}.paper h3{font-size:12px;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid #f2b84b;padding-bottom:3px;margin:16px 0 6px}.paper table{width:100%;border-collapse:collapse}.paper th{background:#111;color:#fff;text-align:left;font-size:11px;padding:5px 6px}.paper td{border-bottom:1px solid #e5e5e5;padding:5px 6px}
-@media print{body{background:#fff}.noprint,#st,#tb{display:none!important}#app{padding:0;max-width:none}.paper{border-radius:0;padding:0}.paper .ph{margin:0 0 12px}}
+@media print{body{background:#fff}.noprint,#st{display:none!important}#app{padding:0;max-width:none}.paper{border-radius:0;padding:0}.paper .ph{margin:0 0 12px}}
 #st{position:fixed;right:10px;bottom:calc(env(safe-area-inset-bottom) + 6px);font-size:11px;color:var(--mu);opacity:.6;pointer-events:none;z-index:5}.chip{font-size:12px;color:var(--mu)}
 .card{background:var(--p);border-radius:12px;padding:12px;margin:10px 0;color:inherit;border:1px solid #2c3541}
 .big{font-size:26px;font-variant-numeric:tabular-nums;color:var(--ac)}
@@ -73,9 +72,10 @@ button.lk{background:none;color:var(--er);padding:6px 0}
 .tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1;padding:10px 4px}.tabs .on{background:var(--ac);color:#1a1405;font-weight:600}
 .bar{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;margin:4px 0;border-radius:6px;background:linear-gradient(90deg,var(--p2) var(--w),transparent var(--w))}
 .bar span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
-</style></head><body><div id="app"></div><div id="st"></div><div id="tb">VERSÃO DE TESTE</div>
+</style></head><body><div id="app"></div><div id="st"></div>
 <script>
 const URL_='https://rvualboqhxyrsxmorphy.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
+const MASTER_EMAIL = 'andrey.log@hotmail.com';
 const EQ=['Aparelho','Livre','Halter','Barra','Anilha','Kettlebell','Mini band','Elástico','Peso corporal'];
 const MD=[['load','Carga e repetições'],['bw','Sem carga (só repetições)'],['time','Tempo (min e seg)']];
 const HD={load:'<div class=sr><span></span><span>Anterior</span><span>kg</span><span>reps</span><span class=rl>RPE</span><span></span></div>',bw:'<div class=sr><span></span><span>Anterior</span><span>reps</span><span></span><span class=rl>RPE</span><span></span></div>',time:'<div class=sr><span></span><span>Anterior</span><span>min</span><span>seg</span><span class=rl>RPE</span><span></span></div>'};
@@ -89,7 +89,7 @@ const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let DB=JSON.parse(localStorage.getItem('tdb')||'{"docs":{},"pull":""}'),AU=JSON.parse(localStorage.getItem('tau')||'null');
-const S={v:'home',sid:null,wid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:''};
+const S={v:'home',sid:null,wid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:'',typeTab:'presencial'};
 const persist=()=>localStorage.setItem('tdb',JSON.stringify(DB));
 const ts=s=>Date.parse(s);
 function put(id,kind,data){const d=DB.docs[id]||{id,kind};d.data=data;d.updated_at=new Date().toISOString();d.dirty=1;d.deleted=!!d.deleted;DB.docs[id]=d;persist();syncSoon()}
@@ -101,9 +101,10 @@ const stu=()=>DB.docs[S.sid],W=()=>{const t=stu();return t&&(t.data.workouts||[]
 const setVol=x=>(+x.kg||0)*(+x.reps||0)+(x.t?(x.t.k==='drop'?(x.t.d||[]).reduce((n,q)=>n+(+q.kg||0)*(+q.reps||0),0):(x.t.c||[]).reduce((n,r)=>n+(+x.kg||0)*(+r||0),0)):0),exVol=a=>(a||[]).reduce((n,x)=>n+setVol(x),0);
 const exN=a=>(a||[]).filter(x=>+x.reps>0||+x.sec>0).length;
 const sesVol=s=>Object.values(s.data.sets).reduce((n,a)=>n+exVol(a),0),sesN=s=>Object.values(s.data.sets).reduce((n,a)=>n+exN(a),0);
+const isMaster=()=>AU&&AU.email===MASTER_EMAIL;
 
 /* ---- sincronização ---- */
-function setAu(j){AU={at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1000)+j.expires_in};localStorage.setItem('tau',JSON.stringify(AU))}
+function setAu(j){AU={at:j.access_token,rt:j.refresh_token,email:j.user?j.user.email:(AU?AU.email:''),exp:j.expires_at||Math.floor(Date.now()/1000)+j.expires_in};localStorage.setItem('tau',JSON.stringify(AU))}
 async function tok(){if(AU.exp<Date.now()/1000+60){const r=await fetch(URL_+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:AU.rt})});
 if(!r.ok){if(r.status<500){AU=null;localStorage.removeItem('tau');render()}throw 0}setAu(await r.json())}return AU.at}
 let busy=0,timer;
@@ -117,7 +118,7 @@ for(;;){const r=await fetch(URL_+'/rest/v1/docs?select=*&order=synced_at.asc&lim
 if(!r.ok)throw 2;const rows=await r.json();
 rows.forEach(x=>{const l=DB.docs[x.id];if(!l||!l.dirty||ts(x.updated_at)>ts(l.updated_at))DB.docs[x.id]={id:x.id,kind:x.kind,data:x.data,updated_at:x.updated_at,deleted:x.deleted};DB.pull=x.synced_at});
 if(rows.length<1000)break}
-migAll();persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
+migAll();checkStudentAutoOpen();persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
 if(!document.activeElement||document.activeElement.tagName!=='INPUT')render()}
 catch(e){S.st='Não sincronizado (tentarei de novo)'}
 busy=0;stat()}
@@ -125,10 +126,34 @@ function stat(){const d=Object.values(DB.docs).filter(x=>x.dirty).length,tx=S.st
 
 function migAll(){list('student').forEach(st=>{if(!st.data.workouts){st.data.workouts=[{id:'w'+st.id.slice(0,8),name:'Treino 1',plan:st.data.plan||[]}];delete st.data.plan;put(st.id,'student',st.data)}});
 list('session').forEach(x=>{if(!x.data.workoutId){const st=DB.docs[x.data.studentId],w=st&&st.data.workouts&&st.data.workouts[0];if(w){x.data.workoutId=w.id;put(x.id,'session',x.data)}}})}
+
+function checkStudentAutoOpen(){
+  if(AU && !isMaster()){
+    const stDoc = list('student').find(s => s.data.email && s.data.email.toLowerCase() === AU.email.toLowerCase());
+    if(stDoc){
+      S.v = 'st';
+      S.sid = stDoc.id;
+      if(!S.tab) S.tab = 'treinos';
+    }
+  }
+}
+
 /* ---- telas ---- */
 function loginV(){return `<h1>Treino</h1><div class=card><input id=em type=email placeholder="E-mail" autocomplete=username><div style="height:8px"></div><input id=pw type=password placeholder="Senha" autocomplete=current-password><button class=pri data-a=login>Entrar</button><p class=mu>${esc(S.msg)}</p></div>`}
-function home(){const L=list('student').sort((a,b)=>a.data.name.localeCompare(b.data.name)),nt=s=>(s.data.workouts||[]).length;
-return `<div class=homew><div><div class=hd><div class=brand><b>AF</b> Pro</div><button class=pill id=st2 data-a=sync></button></div><div class=eh style="align-items:flex-start;gap:10px;margin:18px 0 8px"><div><h1 style="margin:0;font-size:26px">Alunos Ativos</h1><div class=mu>Selecione um aluno para acompanhar treinos e carga</div></div><button class=amber data-a=addst>${ic(P.uplus)} Cadastrar aluno</button></div>`+(L.map(s=>`<button class=scard data-a=open data-id="${s.id}"><span class=av>${esc(s.data.name.trim().slice(0,2).toUpperCase())}</span><span class=sn><b>${esc(s.data.name)}</b><small>${nt(s)} ${nt(s)===1?'treino montado':'treinos montados'}</small></span>${ic(P.chev,'#8f98a3')}</button>`).join('')||'<p class=mu>Nenhum aluno ainda.</p>')+`</div><div class=foot><div class=gd><div class=gl>GESTÃO DE DADOS</div><div class=gg><button data-a=wk>${ic(P.bars,'#f2b84b')} Relatórios da Semana</button><button data-a=export>${ic(P.dl,'#6fcf97')} Backup</button><button onclick="$('#imp').click()">${ic(P.ul,'#6aa6ff')} Restaurar</button><button data-a=logout>${ic(P.out,'#f28cb1')} Sair</button></div></div><input id=imp type=file accept=.json hidden></div></div>`}
+function home(){
+if(!isMaster() && AU){
+  const stDoc = list('student').find(s => s.data.email && s.data.email.toLowerCase() === AU.email.toLowerCase());
+  if(stDoc){ S.v = 'st'; S.sid = stDoc.id; return sv(); }
+}
+const isOnline = S.typeTab === 'online';
+const L = list('student').filter(s => isOnline ? s.data.type === 'online' : (s.data.type !== 'online')).sort((a,b)=>a.data.name.localeCompare(b.data.name));
+const nt = s => (s.data.workouts||[]).length;
+return `<div class=homew><div><div class=hd><div class=brand><b>AF</b> Pro</div><button class=pill id=st2 data-a=sync></button></div>
+<div class="tabs" style="margin-top:14px"><button class="${!isOnline?'on':''}" data-a=settype k=presencial>Presencial</button><button class="${isOnline?'on':''}" data-a=settype k=online>Consultoria Online</button></div>
+<div class=eh style="align-items:flex-start;gap:10px;margin:12px 0 8px"><div><h1 style="margin:0;font-size:22px">${isOnline?'Alunos Online':'Alunos Presenciais'}</h1><div class=mu>${isOnline?'Alunos que treinam sozinhos via app':'Alunos acompanhados em aula'}</div></div><button class=amber data-a=addst>${ic(P.uplus)} ${isOnline?'Cadastrar Online':'Cadastrar Presencial'}</button></div>`+
+(L.map(s=>`<button class=scard data-a=open data-id="${s.id}"><span class=av>${esc(s.data.name.trim().slice(0,2).toUpperCase())}</span><span class=sn><b>${esc(s.data.name)}</b><small>${nt(s)} ${nt(s)===1?'treino montado':'treinos montados'}${s.data.email?' · '+esc(s.data.email):''}</small></span>${ic(P.chev,'#8f98a3')}</button>`).join('')||`<p class=mu>Nenhum aluno ${isOnline?'online':'presencial'} ainda.</p>`)+
+`</div><div class=foot><div class=gd><div class=gl>GESTÃO DE DADOS</div><div class=gg><button data-a=wk>${ic(P.bars,'#f2b84b')} Relatórios da Semana</button><button data-a=export>${ic(P.dl,'#6fcf97')} Backup</button><button onclick="$('#imp').click()">${ic(P.ul,'#6aa6ff')} Restaurar</button><button data-a=logout>${ic(P.out,'#f28cb1')} Sair</button></div></div><input id=imp type=file accept=.json hidden></div></div>`}
+
 const wr=()=>{const n=new Date(),k=(n.getDay()+6)%7,a=new Date(n.getFullYear(),n.getMonth(),n.getDate()-k);return[a,new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)]};
 function agg(st,a,b){const A=ds(a),B=ds(b),pl=(st.data.workouts||[]).flatMap(w=>w.plan),nm={},gm={},ws={},ex={},gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});(st.data.workouts||[]).forEach(w=>ws[w.id]=w.name);
 const ss=sessions(st.id).filter(x=>x.data.date>=A&&x.data.date<=B&&sesN(x)>0).sort((x,y)=>x.data.date<y.data.date?-1:1);let V=0,N=0;
@@ -223,17 +248,17 @@ return `<div class="noprint eh"><button data-a=pdfback>‹ Voltar</button><butto
 <h3>Séries por grupo muscular</h3><table><tr><th>Grupo</th><th>Séries</th><th>Volume</th></tr>${Object.entries(o.gr).sort((x,y)=>y[1].n-x[1].n).map(([g,x])=>tr([g,x.n,fmt(x.v)+' kg'])).join('')}</table></div>`}
 function vTreinos(){const L=stu().data.workouts||[];
 return painel()+(L.map(w=>{const ls=sessions(S.sid).filter(x=>x.data.workoutId===w.id&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
-return `<button class=card style="width:100%;text-align:left" data-a=openw data-id="${w.id}"><b>${esc(w.name)}</b> <span class=mu>${w.plan.length} exercícios</span><br><span class=mu>${ls?'Último: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Ainda não treinado'}</span></button>`}).join('')||'<p class=mu>Nenhum treino cadastrado. Crie o primeiro abaixo.</p>')+'<button class=pri data-a=addw>Adicionar treino</button><button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>'}
-function sv(){const st=stu(),w=W(),top=`<div class=eh style="margin-bottom:10px"><button class=bkb data-a=back>${ic(P.back)} ${w?'Treinos':'Alunos'}</button><b class=sname>${esc(st.data.name)}<button class=ed data-a=rens aria-label="Editar nome do aluno">✎</button></b></div>${w?`<h1 style="margin:2px 0 10px">${esc(w.name)}<button class=ed data-a=renw aria-label="Editar nome do treino">✎</button></h1>`:''}`,
+return `<button class=card style="width:100%;text-align:left" data-a=openw data-id="${w.id}"><b>${esc(w.name)}</b> <span class=mu>${w.plan.length} exercícios</span><br><span class=mu>${ls?'Último: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Ainda não treinado'}</span></button>`}).join('')||'<p class=mu>Nenhum treino cadastrado. Crie o primeiro abaixo.</p>')+'<button class=pri data-a=addw>Adicionar treino</button>'+(isMaster()?`<button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>`:'')}
+function sv(){const st=stu(),w=W(),top=`<div class=eh style="margin-bottom:10px">${isMaster()?`<button class=bkb data-a=back>${ic(P.back)} ${w?'Treinos':'Alunos'}</button>`:''}<b class=sname>${esc(st.data.name)}${isMaster()?`<button class=ed data-a=rens aria-label="Editar nome do aluno">✎</button>`:''}</b></div>${w?`<h1 style="margin:2px 0 10px">${esc(w.name)}${isMaster()?`<button class=ed data-a=renw aria-label="Editar nome do treino">✎</button>`:''}</h1>`:''}`,
 T2=(k,l,i)=>`<button data-a=tab data-k=${k} class="${S.tab===k||k==='exl'&&S.tab==='exh'?'on':''}">${ic(i)}<span>${l}</span></button>`;
-if(w)return top+(S.tab==='fim'?vFim():`<div class=tabbar>${T2('treino','Treino',P.db)}${T2('ficha','Ficha',P.list)}</div>`+(S.tab==='ficha'?vFicha():vTreino()));
+if(w)return top+(S.tab==='fim'?vFim():`<div class=tabbar>${T2('treino','Treino',P.db)}${isMaster()?T2('ficha','Ficha',P.list):''}</div>`+(S.tab==='ficha'&&isMaster()?vFicha():vTreino()));
 return top+`<div class=tabbar>${T2('treinos','Treinos',P.db)}${T2('resumo','<span class=t2>Relatórios<br>e evolução</span>',P.bars)}${T2('exl','Exercícios',P.pulse)}${T2('hist','Histórico',P.cal)}</div>`+(S.tab==='resumo'?vResumo():S.tab==='hist'?vHist():S.tab==='exl'?vExL():S.tab==='exh'?vExH():vTreinos())}
 function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done&&d.data.workoutId===S.wid);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,workoutId:S.wid,date:today(),sets:{}});s=DB.docs[id]}return s}
 function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
 function vTreino(){const pl=wpl();if(!pl.length)return '<p class=mu>Monte este treino na aba Ficha.</p>';const bk=i=>{let a=i,b=i;while(a>0&&pl[a-1].cn)a--;while(b<pl.length-1&&pl[b].cn)b++;return[a,b]},cs=curSes(),ls=sessions(S.sid).filter(x=>x.data.workoutId===S.wid&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
 return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b><br><span class=mu>${ls?'Treino anterior: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Primeira vez neste treino'}</span><div class=mu style="margin-top:6px;font-size:12px">Toque no número da série para adicionar técnica.</div></div>`+LEG+pl.map((e,ix)=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs),m=e.mode||'load',F=m==='time'?['mn','sg']:m==='bw'?['reps']:['kg','reps'];const sgv=sug(e,exS(lp.a)),sgl=sgv?`<details class=sgd><summary class=mu>Sugestão para hoje: <b class=ac>${dc(sgv.kg)} kg</b> ${sgv.d?'(+'+dc(sgv.d)+')':'(manter)'}</summary>${sugBox(sgv)}</details>`:'';const[ba,bb]=bk(ix),cj=bb>ba,hdr=cj?`<div class=mu style="margin:14px 2px -4px;color:var(--ac);font-weight:700;font-size:12px;letter-spacing:.5px">${CJ(bb-ba+1)} · ${pl.slice(ba,bb+1).map(x=>esc(x.name||'?')).join(' + ')}</div>`:'',sumH=cj?`<div class=mu data-sum="${ba},${bb}" style="margin:-4px 2px 10px;text-align:right">${cjTxt(ba,bb,cs)}</div>`:'';let rows=HD[m];
 for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><button class=nb data-a=tq data-e="${e.id}" data-i=${i}>${i+1}${c.t?'*':''}</button><span class=ant>${lp.a[i]?esc(fa(p,m)):'–'}</span>${F.map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k}  value="${esc(c[k]??'')}">`).join('')}${m==='bw'?'<span></span>':''}${rpeSel(e.id,i,c.rpe)}<button class=x data-a=delset data-e="${e.id}" data-i=${i} aria-label="Excluir série">✕</button></div>`+tecUI(e.id,i,c)}
-return (cj&&ix===ba?hdr:'')+`<div class=card${cj?' style="border-left:3px solid var(--ac)"':''}><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span></div><div>${mvB(ix,pl.length,e)}</div>${sgl}${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu data-v="${e.id}" data-m="${m}">${exTot(cur,m)}</span></div></div>`+(cj&&ix===bb?sumH:'')}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
+return (cj&&ix===ba?hdr:'')+`<div class=card${cj?' style="border-left:3px solid var(--ac)"':''}><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span></div><div>${isMaster()?mvB(ix,pl.length,e):''}</div>${sgl}${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu data-v="${e.id}" data-m="${m}">${exTot(cur,m)}</span></div></div>`+(cj&&ix===bb?sumH:'')}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
 function rowsN(id,cs){const d=cs&&cs.data,a=(d&&d.sets[id])||[],r=d&&d.rows&&d.rows[id];return Math.max(r??Math.max(last(id).a.length,1),a.length)}
 function noteUI(e,cs){const t=(cs&&cs.data.notes||{})[e.id]||'';return S.nt===e.id?`<textarea data-n="${e.id}" rows="1" placeholder="Observação">${esc(t)}</textarea><button class=lk2 data-a=notedone>Fechar</button>`:t?`<div class=mu style="margin-top:6px">Obs.: ${esc(t)} <button class=lk2 data-a=note data-e="${e.id}">editar</button></div>`:`<button class=lk2 data-a=note data-e="${e.id}">+ observação</button>`}
 const P={chev:'<path d="m9 6 6 6-6 6"/>',back:'<path d="m15 6-6 6 6 6"/>',uplus:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"/>',bars:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',dl:'<path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/>',ul:'<path d="M12 15V3m0 0L8 7m4-4 4 4M4 21h16"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',db:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>',pulse:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'};
@@ -292,7 +317,16 @@ return h+`<div class=card><b>Relatório ${S.per==='w'?'da semana':'do mês'} · 
 if(S.sub==='grp')return h+`<div class=card><b>Séries por grupo</b>${donut(ent(gr,'n'),n=>n+' séries')}</div><div class=card><b>Volume por grupo</b>${hbars(ent(gr,'v'),n=>fmt(n)+' kg','#6aa6ff')}</div>`;
 const tot=S.sub==='ser'?N+' séries':fmt(V)+' kg',per=cols(ss.map(s=>[fd(s.data.date),S.sub==='ser'?sesN(s):sesVol(s)]));
 return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><br><b class=big>${tot}</b></div><div class=card><b>Por treino</b>${per}</div><div class=card><b>Por exercício</b>${hbars(ent(ex,u).filter(x=>S.sub==='ser'||x[1]>0),S.sub==='ser'?n=>n+' séries':n=>fmt(n)+' kg',S.sub==='ser'?'#6fcf97':'#f2b84b')}</div>`}
-function render(){const app=$('#app');app.innerHTML=!AU?loginV():S.v==='wk'?wkV():S.v==='pdf'&&stu()?pdfV():S.v==='home'||!stu()?home():sv();stat();const s1=$('#st');if(s1)s1.style.display=AU&&S.v==='home'?'none':'';if($('#xc'))xsel(XP.length-1)}
+
+function render(){
+  const app=$('#app');
+  checkStudentAutoOpen();
+  app.innerHTML=!AU?loginV():S.v==='wk'?wkV():S.v==='pdf'&&stu()?pdfV():S.v==='home'||!stu()?home():sv();
+  stat();
+  const s1=$('#st');
+  if(s1)s1.style.display=AU&&S.v==='home'?'none':'';
+  if($('#xc'))xsel(XP.length-1);
+}
 function refresh(){const cs=curSes();document.querySelectorAll('[data-v]').forEach(n=>{n.textContent=n.dataset.v==='tot'?fmt(cs?sesVol(cs):0)+' kg':exTot(cs&&cs.data.sets[n.dataset.v],n.dataset.m)});document.querySelectorAll('[data-sum]').forEach(n=>{const[a,b]=n.dataset.sum.split(',').map(Number);n.textContent=cjTxt(a,b,cs)});stat()}
 
 /* ---- ações ---- */
@@ -302,6 +336,7 @@ function exp(){const o=Object.fromEntries(Object.entries(DB.docs).filter(([,d])=
 async function imp(f){if(!f)return;try{Object.values(JSON.parse(await f.text())).forEach(d=>{DB.docs[d.id]={...d,dirty:1}});persist();render();syncSoon()}catch{alert('Arquivo inválido')}}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,k=t.dataset.k,i=+t.dataset.i;
 if(a==='login')return login();
+if(a==='settype'){ S.typeTab = t.getAttribute('k'); render(); return; }
 if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treinos';S.wid=null}
 else if(a==='openw'){S.wid=t.dataset.id;S.tab='treino'}
 else if(a==='addw'){const n=prompt('Nome do treino (ex.: Treino A, Peito e tríceps)');if(!n||!n.trim())return;const st=stu(),id=uid().slice(0,8);st.data.workouts.push({id,name:n.trim(),plan:[]});put(st.id,'student',st.data);S.wid=id;S.tab='ficha'}
@@ -313,7 +348,17 @@ else if(a==='tab')S.tab=k;
 else if(a==='sub')S.sub=k;
 else if(a==='per'){S.per=k;S.off=0}
 else if(a==='nav')S.off+=+k;
-else if(a==='addst'){const n=prompt('Nome do aluno');if(!n||!n.trim())return;put(uid(),'student',{name:n.trim(),workouts:[]})}
+else if(a==='addst'){
+  const isOnline = S.typeTab === 'online';
+  const n=prompt('Nome do aluno');if(!n||!n.trim())return;
+  let em = '';
+  if(isOnline){
+    em = prompt('E-mail do aluno (para acesso ao app):');
+    if(!em || !em.trim()) return alert('E-mail é obrigatório para aluno online!');
+    em = em.trim();
+  }
+  put(uid(),'student',{name:n.trim(),email:em,type:isOnline?'online':'presencial',workouts:[]});
+}
 else if(a==='addex'){const s=stu();W().plan.push({id:uid().slice(0,8),name:'',group:'',equip:'',mode:'load'});put(s.id,'student',s.data)}
 else if(a==='rmex'){const s=stu();W().plan.splice(i,1);put(s.id,'student',s.data)}
 else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,n=rowsN(id,cs);(cs.data.rows??={})[id]=n+1;put(cs.id,'session',cs.data)}

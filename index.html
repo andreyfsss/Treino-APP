@@ -45,7 +45,7 @@ details summary{cursor:pointer}.bl details summary{list-style:none}.bl details s
 textarea{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit;resize:none;overflow:hidden;margin-top:6px}
 button.ed{background:none;color:var(--mu);padding:0 6px;font-size:16px;vertical-align:middle}
 button.ed:hover{color:var(--ac)}
-@media (hover:hover){button.card:hover{background:var(--ac);color:#1a1405}button.card:hover small{color:#4a3a10}}
+@media (hover:hover){button.card:hover{background:var(--ac);color:#1a1405}button.card:hover .mu{color:#4a3a10}}
 button.nm{background:none;padding:0;font-weight:700;font-size:16px;text-align:left;color:var(--tx)}
 .sr .ant{background:var(--p2);color:var(--tx);border-radius:8px;padding:6px 4px;font-size:13px;line-height:1.2;text-align:center;min-height:34px;display:flex;align-items:center;justify-content:center}
 .sr input,.sr select{padding:4px 4px;height:34px}
@@ -149,7 +149,7 @@ const isOnline = S.typeTab === 'online';
 const L = list('student').filter(s => isOnline ? s.data.type === 'online' : (s.data.type !== 'online')).sort((a,b)=>a.data.name.localeCompare(b.data.name));
 const nt = s => (s.data.workouts||[]).length;
 return `<div class=homew><div><div class=hd><div class=brand><b>AF</b> Pro</div><button class=pill id=st2 data-a=sync></button></div>
-<div class="tabs" style="margin-top:14px"><button class="${!isOnline?'on':''}" data-a=settype data-k=presencial>Presencial</button><button class="${isOnline?'on':''}" data-a=settype data-k=online>Consultoria Online</button></div>
+<div class="tabs" style="margin-top:14px"><button class="${!isOnline?'on':''}" data-a=settype k=presencial>Presencial</button><button class="${isOnline?'on':''}" data-a=settype k=online>Consultoria Online</button></div>
 <div class=eh style="align-items:flex-start;gap:10px;margin:12px 0 8px"><div><h1 style="margin:0;font-size:22px">${isOnline?'Alunos Online':'Alunos Presenciais'}</h1><div class=mu>${isOnline?'Alunos que treinam sozinhos via app':'Alunos acompanhados em aula'}</div></div><button class=amber data-a=addst>${ic(P.uplus)} ${isOnline?'Cadastrar Online':'Cadastrar Presencial'}</button></div>`+
 (L.map(s=>`<button class=scard data-a=open data-id="${s.id}"><span class=av>${esc(s.data.name.trim().slice(0,2).toUpperCase())}</span><span class=sn><b>${esc(s.data.name)}</b><small>${nt(s)} ${nt(s)===1?'treino montado':'treinos montados'}${s.data.email?' · '+esc(s.data.email):''}</small></span>${ic(P.chev,'#8f98a3')}</button>`).join('')||`<p class=mu>Nenhum aluno ${isOnline?'online':'presencial'} ainda.</p>`)+
 `</div><div class=foot><div class=gd><div class=gl>GESTÃO DE DADOS</div><div class=gg><button data-a=wk>${ic(P.bars,'#f2b84b')} Relatórios da Semana</button><button data-a=export>${ic(P.dl,'#6fcf97')} Backup</button><button onclick="$('#imp').click()">${ic(P.ul,'#6aa6ff')} Restaurar</button><button data-a=logout>${ic(P.out,'#f28cb1')} Sair</button></div></div><input id=imp type=file accept=.json hidden></div></div>`}
@@ -204,7 +204,7 @@ const pr=all.slice(0,i).flatMap(x=>(x.data.sets[e.id]||[]).filter(q=>+q.reps>0))
 if(c.kg>mx)REC.push(`${esc(nm(e))}: novo recorde de peso, de ${dc(mx)} para ${dc(c.kg)} kg (+${dc(+(c.kg-mx).toFixed(2))} kg)`);
 else{let b=null;(s.data.sets[e.id]||[]).filter(q=>+q.reps>0).forEach(q=>{const k=+q.kg||0,pb=Math.max(0,...pr.filter(z=>(+z.kg||0)>=k).map(z=>+z.reps||0));if(pb>0&&+q.reps>pb&&(!b||+q.reps-pb>b.d))b={k,pb,n:+q.reps,d:+q.reps-pb}});if(b)REC.push(`${esc(nm(e))}: novo recorde de repetições com ${dc(b.k)} kg, de ${b.pb} para ${b.n} (+${b.d})`)}}
 if(f){i0+=f.kg;c0+=c.kg;EV.push([nm(e),f.kg,c.kg])}});
-const q=Object.values(s.data.sets).flat().filter(x=>+q.reps>0),ar=q.length?q.reduce((n,x)=>n+(+x.reps||0),0)/q.length:0,V=sesVol(s),pV=pv?sesVol(pv):0,ev=i0?(c0/i0-1)*100:null,mp=pc.length?pc.reduce((n,x)=>n+x,0)/pc.length:0;
+const q=Object.values(s.data.sets).flat().filter(x=>+x.reps>0),ar=q.length?q.reduce((n,x)=>n+(+x.reps||0),0)/q.length:0,V=sesVol(s),pV=pv?sesVol(pv):0,ev=i0?(c0/i0-1)*100:null,mp=pc.length?pc.reduce((n,x)=>n+x,0)/pc.length:0;
 const nx=n=>n+(n===1?' exercício':' exercícios'),kgL=(L,b)=>L.map(([n,x,y])=>`<div>${b?`<b class=ac>${esc(n)}</b>`:esc(n)}: ${dc(x)} → ${dc(y)} kg</div>`).join('')||'<div class=mu>Nenhum.</div>',rpL=L=>L.map(([n,x,y])=>`<div>${esc(n)}: ${r1(x)} → ${r1(y)} repetições por série</div>`).join('')||'<div class=mu>Nenhum.</div>',
 det=(t,b)=>`<li><details><summary>${t} <span class=mu>(ver quais)</span></summary><div class=mu style="margin:6px 0">${b}</div></details></li>`,mr=Math.round(mp);
 const bl=pv?[det(`Você usou <b>mais peso</b> em ${nx(U.length)}, <b>menos peso</b> em ${nx(D.length)} e o <b>mesmo peso</b> em ${nx(E.length)}.${pc.length?` Na média, a carga ${mr===0?'ficou igual':(mr>0?'subiu ':'caiu ')+Math.abs(mr)+'%'} em relação ao último treino.`:''}`,`<b>Mais peso:</b>${kgL(U)}<b>Menos peso:</b>${kgL(D,1)}<b>Mesmo peso:</b>${kgL(E)}`),
@@ -218,14 +218,14 @@ const TL=[['trn',all.length,'TREINOS REALIZADOS','Quantas vezes este treino foi 
 return `<div class=card><b style="font-size:20px">Treino concluído</b><div class=mu>${esc((W()||{}).name||'')} · ${fd(s.data.date)} · Leitura rápida desta sessão</div><ul class=bl>${bl.join('')}</ul></div><div class=card><b class=ac>RESUMO DA EVOLUÇÃO</b><div class=tl>${TL.map(([k,v,l])=>`<button class="tile${S.te===k?' on':''}" data-a=tile data-k=${k}><b${String(v).length>8?' style="font-size:13px"':''}>${v}</b><span>${l}</span></button>`).join('')}</div>${sl?`<div class=pn><div>${sl[3]}</div>${sl[4]?`<div style="margin-top:6px">${sl[4]}</div>`:''}</div>`:'<div class=mu style="font-size:12px;margin-top:6px">Toque em um quadrado para entender.</div>'}${i0&&c0?`<div class=mu style="margin-top:10px">Soma das maiores cargas de cada exercício: <b style="color:var(--tx)">${dc(i0)} kg</b> na 1ª sessão e <b style="color:var(--tx)">${dc(c0)} kg</b> hoje.</div>`:''}</div>`}
 function sgAll(s){const L=allPl().map(e=>[e,sug(e,exS(s.data.sets[e.id]))]).filter(x=>x[1]);return L.length?`<div class=card><b>Próxima sessão sugerida</b>${L.map(([e,g])=>`<div style="margin-top:12px"><b>${esc(e.name)||'(sem nome)'}</b>${sugBox(g)}</div>`).join('')}</div>`:''}
 function vExL(){const L=stu().data.workouts||[];
-return '<p class=mu>Toque em um exercício para ver o histórico dele neste aluno.</p>'+(L.map(w=>`<div class=mu style="margin:14px 2px 4px"><b>${esc(w.name)}</b></div>`+(w.plan.map(e=>{const a=sessions(S.sid).filter(x=>exN(x.data.sets[e.id])),ls=a.sort((p,q)=>p.data.date<q.data.date?1:-1)[0];return `<button class=card style="width:100%;text-align:left" data-a=exh data-id="${e.id}"><b>${esc(e.name)||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><br><span class=mu>${a.length} treino(s)${ls?' · último '+fd(ls.data.date):''}</span></button>`}).join('')||'<p class=mu>Sem exercícios.</p>')).join('')||'<p class=mu>Nenhum treino cadastrado.</p>'}
+return '<p class=mu>Toque em um exercício para ver o histórico dele neste aluno.</p>'+(L.map(w=>`<div class=mu style="margin:14px 2px 4px"><b>${esc(w.name)}</b></div>`+(w.plan.map(e=>{const a=sessions(S.sid).filter(x=>exN(x.data.sets[e.id])),ls=a.sort((p,q)=>p.data.date<q.data.date?1:-1)[0];return `<button class=card style="width:100%;text-align:left" data-a=exh data-id="${e.id}"><b>${esc(e.name)||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><br><span class=mu>${a.length} treino(s)${ls?' · último '+fd(ls.data.date):''}</span></button>`}).join('')||'<p class=mu>Sem exercícios.</p>')).join('')||'<p class=mu>Nenhum treino cadastrado.</p>')}
 function vExH(){const e=allPl().find(x=>x.id===S.ex);if(!e){XP=[];return ''}const m=e.mode||'load',MT={load:[['max','Carga máxima'],['vol','Volume'],['ser','Séries']],bw:[['rep','Repetições'],['ser','Séries']],time:[['tmp','Tempo total'],['ser','Séries']]}[m],me=MT.some(x=>x[0]===S.exm)?S.exm:MT[0][0],mn=MT.find(x=>x[0]===me)[1];
 const by={};sessions(S.sid).forEach(x=>{const a=(x.data.sets[e.id]||[]).filter(q=>+q.reps>0||+q.sec>0);if(a.length)(by[x.data.date]??=[]).push(...a)});
 const val=a=>me==='max'?Math.max(...a.map(q=>+q.kg||0)):me==='vol'?exVol(a):me==='ser'?a.length:me==='rep'?a.reduce((n,q)=>n+(+q.reps||0),0):a.reduce((n,q)=>n+(+q.sec||0),0);
 const fv=v=>me==='tmp'?mm(v):me==='ser'?v+' séries':me==='rep'?v+' reps':NF(v)+' kg';XH.m=me;
 XP=Object.keys(by).sort().map(d=>{const a=by[d],v=val(a);return{d,v,fv:fv(v),tip:`<div class=xh>${new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'}).toUpperCase()}</div><div class=xv>${fv(v)}</div><div class=xs>${mn} · ${a.length} séries<br>${a.map((q,i)=>`${i+1}ª: ${esc(fa(q,m))}`).join('<br>')}</div>`}});
 const bs=XP.reduce((a,p)=>p.v>a.v?p:a,XP[0]||{v:0}),st=XP.length?`<div class=card><div class=eh><span class=mu>Primeiro</span><b>${XP[0].fv}</b></div><div class=eh style="margin-top:6px"><span class=mu>Melhor (${bs.d.split('-').reverse().slice(0,2).join('/')})</span><b>${bs.fv}</b></div><div class=eh style="margin-top:6px"><span class=mu>Último</span><b>${XP[XP.length-1].fv}</b></div></div><div class=card><b>Todos os treinos</b>${XP.slice().reverse().map(p=>`<div class=eh style="margin-top:6px"><span>${p.d.split('-').reverse().join('/')}</span><b>${p.fv}</b></div>`).join('')}</div>`:'';
-return `<button data-a=tab data-k=exl>‹ Exercícios</button><div class=card><b>${esc(e.name||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><div style="font-weight:600;margin:6px 0">Progressão</div><div class=tabs>${MT.map(([k,l])=>`<button data-a=exm data-k=${k} class="${me===k?'on':''}">${l}</button>`).join('')}</div>${exChart()}</div>`+st}
+return `<button data-a=tab data-k=exl>‹ Exercícios</button><div class=card><b>${esc(e.name)||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><div style="font-weight:600;margin:6px 0">Progressão</div><div class=tabs>${MT.map(([k,l])=>`<button data-a=exm data-k=${k} class="${me===k?'on':''}">${l}</button>`).join('')}</div>${exChart()}</div>`+st}
 function vHist(){const ws={};(stu().data.workouts||[]).forEach(w=>ws[w.id]=w.name);
 const L=sessions(S.sid).sort((a,b)=>a.data.date===b.data.date?(a.updated_at<b.updated_at?1:-1):(a.data.date<b.data.date?1:-1));
 return '<p class=mu>Corrija a data ou exclua treinos registrados por engano.</p>'+(L.map(x=>`<div class=card><div class=eh><b>${esc(ws[x.data.workoutId]||'Treino')}</b><span class=mu>${x.data.done?'finalizado':'em aberto'}</span></div><div class=mu>${fmt(sesVol(x))} kg · ${sesN(x)} séries</div><div class=eh style="margin-top:8px"><input type=date data-sd="${x.id}" value="${x.data.date}" style="max-width:170px"><button class=lk data-a=delses data-id="${x.id}">Excluir</button></div></div>`).join('')||'<p class=mu>Nenhum treino registrado.</p>')}
@@ -258,7 +258,7 @@ function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data
 function vTreino(){const pl=wpl();if(!pl.length)return '<p class=mu>Monte este treino na aba Ficha.</p>';const bk=i=>{let a=i,b=i;while(a>0&&pl[a-1].cn)a--;while(b<pl.length-1&&pl[b].cn)b++;return[a,b]},cs=curSes(),ls=sessions(S.sid).filter(x=>x.data.workoutId===S.wid&&(x.data.date<today()||x.data.done)).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];
 return `<div class=card><span class=mu>Volume do treino de hoje</span><br><b class=big data-v=tot>${fmt(cs?sesVol(cs):0)} kg</b><br><span class=mu>${ls?'Treino anterior: '+fd(ls.data.date)+' · '+fmt(sesVol(ls))+' kg · '+sesN(ls)+' séries':'Primeira vez neste treino'}</span><div class=mu style="margin-top:6px;font-size:12px">Toque no número da série para adicionar técnica.</div></div>`+LEG+pl.map((e,ix)=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs),m=e.mode||'load',F=m==='time'?['mn','sg']:m==='bw'?['reps']:['kg','reps'];const sgv=sug(e,exS(lp.a)),sgl=sgv?`<details class=sgd><summary class=mu>Sugestão para hoje: <b class=ac>${dc(sgv.kg)} kg</b> ${sgv.d?'(+'+dc(sgv.d)+')':'(manter)'}</summary>${sugBox(sgv)}</details>`:'';const[ba,bb]=bk(ix),cj=bb>ba,hdr=cj?`<div class=mu style="margin:14px 2px -4px;color:var(--ac);font-weight:700;font-size:12px;letter-spacing:.5px">${CJ(bb-ba+1)} · ${pl.slice(ba,bb+1).map(x=>esc(x.name||'?')).join(' + ')}</div>`:'',sumH=cj?`<div class=mu data-sum="${ba},${bb}" style="margin:-4px 2px 10px;text-align:right">${cjTxt(ba,bb,cs)}</div>`:'';let rows=HD[m];
 for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><button class=nb data-a=tq data-e="${e.id}" data-i=${i}>${i+1}${c.t?'*':''}</button><span class=ant>${lp.a[i]?esc(fa(p,m)):'–'}</span>${F.map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k}  value="${esc(c[k]??'')}">`).join('')}${m==='bw'?'<span></span>':''}${rpeSel(e.id,i,c.rpe)}<button class=x data-a=delset data-e="${e.id}" data-i=${i} aria-label="Excluir série">✕</button></div>`+tecUI(e.id,i,c)}
-return (cj&&ix===ba?hdr:'')+`<div class=card${cj?' style="border-left:3px solid var(--ac)"':''}><div class=eh><b>${esc(e.name||'(sem nome)')}</b><span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span></div><div>${isMaster()?mvB(ix,pl.length,e):''}</div>${sgl}${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu data-v="${e.id}" data-m="${m}">${exTot(cur,m)}</span></div></div>`+(cj&&ix===bb?sumH:'')}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
+return (cj&&ix===ba?hdr:'')+`<div class=card${cj?' style="border-left:3px solid var(--ac)"':''}><div class=eh><b>${esc(e.name)||'(sem nome)'}</b><span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span></div><div>${isMaster()?mvB(ix,pl.length,e):''}</div>${sgl}${rows}${noteUI(e,cs)}<div class=eh style="margin-top:8px"><button data-a=addset data-e="${e.id}">+ série</button><span class=mu data-v="${e.id}" data-m="${m}">${exTot(cur,m)}</span></div></div>`+(cj&&ix===bb?sumH:'')}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
 function rowsN(id,cs){const d=cs&&cs.data,a=(d&&d.sets[id])||[],r=d&&d.rows&&d.rows[id];return Math.max(r??Math.max(last(id).a.length,1),a.length)}
 function noteUI(e,cs){const t=(cs&&cs.data.notes||{})[e.id]||'';return S.nt===e.id?`<textarea data-n="${e.id}" rows="1" placeholder="Observação">${esc(t)}</textarea><button class=lk2 data-a=notedone>Fechar</button>`:t?`<div class=mu style="margin-top:6px">Obs.: ${esc(t)} <button class=lk2 data-a=note data-e="${e.id}">editar</button></div>`:`<button class=lk2 data-a=note data-e="${e.id}">+ observação</button>`}
 const P={chev:'<path d="m9 6 6 6-6 6"/>',back:'<path d="m15 6-6 6 6 6"/>',uplus:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"/>',bars:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',dl:'<path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/>',ul:'<path d="M12 15V3m0 0L8 7m4-4 4 4M4 21h16"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',db:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>',pulse:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'};
@@ -266,7 +266,7 @@ const ic=(p,c)=>`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" str
 const TEC={drop:{n:'Drop set',d:'Reduz a carga sem descanso e continua a série. Cada redução é um drop.'},cluster:{n:'Cluster set',d:'Divide a série em blocos curtos com descanso breve, mantendo a carga.',rest:'20'}};
 const CJ=n=>n===2?'BI-SET':n===3?'TRI-SET':'GIANT SET';
 function cjTxt(a,b,cs){const pl=wpl();let v=0,n=0;for(let i=a;i<=b;i++){const r=cs&&cs.data.sets[pl[i].id];v+=exVol(r);n+=exN(r)}return `Soma · ${fmt(v)} kg · ${n} séries`}
-const mvB=(i,n,e)=>`<button class=lk2 data-a=mvx data-i=${i} data-k=-1 aria-label="Subir exercício">▲</button><button class=lk2 data-a=mvx data-i=${i} data-k=1 aria-label="Descer exercício" style="margin-right:10px">▼</button>`+(i<n-1?`<button class=lk2 data-a=cj data-i=${i} style="margin-right:14px">${e.cn?'Desfazer conjugado':'Conjugar com o de baixo'}`:'');
+const mvB=(i,n,e)=>`<button class=lk2 data-a=mvx data-i=${i} data-k=-1 aria-label="Subir exercício">▲</button><button class=lk2 data-a=mvx data-i=${i} data-k=1 aria-label="Descer exercício" style="margin-right:10px">▼</button>`+(i<n-1?`<button class=lk2 data-a=cj data-i=${i} style="margin-right:14px">${e.cn?'Desfazer conjugado':'Conjugar com o de baixo'}</button>`:'');
 function tecUI(id,i,c){const o=S.tm===id+':'+i,t=c.t,b=(a,k,x)=>`<button class="chip2${x?' on':''}" data-a=${a} data-e="${id}" data-i=${i} data-k=${k}>`;let h='';
 if(o)h+=`<div class=chips style="margin:4px 0 4px 34px">${Object.entries(TEC).map(([k,v])=>b('tset',k,t&&t.k===k)+v.n+'</button>').join('')}${t?b('tset','none')+'Remover técnica</button>':''}</div>`;
 if(t){const T=TEC[t.k],X=j=>`<button class=x data-a=tdel data-e="${id}" data-i=${i} data-j=${j} aria-label="Remover">✕</button>`;
@@ -300,7 +300,7 @@ return `<svg viewBox="0 0 ${W} ${H}" width="100%">${gr}${xl}${ln}</svg>`+lg}
 function tbl(L,D){const c='style="text-align:right;padding:3px 4px"';return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><tr><th></th>'+L.map(x=>`<th ${c}>${x}</th>`).join('')+`<th ${c}>Total</th></tr>`+D.map(x=>`<tr><td style="padding:3px 4px;white-space:nowrap"><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${x.c};margin-right:5px"></i>${esc(x.n)}</td>`+x.v.map(v=>`<td ${c}>${fk(v)}</td>`).join('')+`<td ${c}><b>${fk(x.v.reduce((p,q)=>p+q,0))}</b></td></tr>`).join('')+'</table></div>'}
 function vFim(){const s=DB.docs[S.rid];if(!s)return '';const pl=allPl(),nm={},gm={},ex=[],gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});let V=0,N=0;
 Object.entries(s.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const r=arr.map(x=>+x.rpe).filter(x=>x>0),g=gm[id]||'Outro';ex.push([nm[id]||'(removido)',exVol(arr),n,r.length?r.reduce((p,q)=>p+q,0)/r.length:0]);gr[g]=(gr[g]||0)+n;V+=exVol(arr);N+=n});
-ex.sort((x,y)=>y[1]-x[1]);const pv=sessions(S.sid).filter(x=>x.data.date<s.data.date).sort((x,y)=>y.data.date<x.data.date?1:-1)[0],pvV=pv?sesVol(pv):0,dl=pvV?` · ${V>=pvV?'+':''}${Math.round((V/pvV-1)*100)}% vs. treino anterior`:'';
+ex.sort((x,y)=>y[1]-x[1]);const pv=sessions(S.sid).filter(x=>x.data.date<s.data.date).sort((x,y)=>x.data.date<y.data.date?1:-1)[0],pvV=pv?sesVol(pv):0,dl=pvV?` · ${V>=pvV?'+':''}${Math.round((V/pvV-1)*100)}% vs. treino anterior`:'';
 const rp=ex.filter(x=>x[3]).map(x=>[x[0],x[3]]);
 return `<button data-a=tab data-k=treino>‹ Novo treino</button>${evoHTML(s)}${sgAll(s)}<div class=card><b>Volume por exercício</b>${hbars(ex.map(x=>[x[0],x[1]]).filter(x=>x[1]>0),n=>fmt(n)+' kg','#f2b84b')}</div><div class=card><b>Séries por exercício</b>${hbars(ex.map(x=>[x[0],x[2]]),n=>n+' séries','#6fcf97')}</div>`+(rp.length?`<div class=card><b>RPE médio</b>${hbars(rp,n=>n.toFixed(1).replace('.',','),'#b48cf2')}</div>`:'')+`<div class=card><b>Séries por grupo</b>${donut(Object.entries(gr).sort((x,y)=>y[1]-x[1]),n=>n+' séries')}</div>`}
 function vResumo(){const[a,b]=range(),A=ds(a),B=ds(b),pl=allPl(),gm={},nm={};pl.forEach(e=>{gm[e.id]=e.group;nm[e.id]=e.name||'(sem nome)'});
@@ -320,7 +320,6 @@ return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><
 
 function render(){
   const app=$('#app');
-  if(!app) return;
   checkStudentAutoOpen();
   app.innerHTML=!AU?loginV():S.v==='wk'?wkV():S.v==='pdf'&&stu()?pdfV():S.v==='home'||!stu()?home():sv();
   stat();
@@ -337,7 +336,7 @@ function exp(){const o=Object.fromEntries(Object.entries(DB.docs).filter(([,d])=
 async function imp(f){if(!f)return;try{Object.values(JSON.parse(await f.text())).forEach(d=>{DB.docs[d.id]={...d,dirty:1}});persist();render();syncSoon()}catch{alert('Arquivo inválido')}}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,k=t.dataset.k,i=+t.dataset.i;
 if(a==='login')return login();
-if(a==='settype'){ S.typeTab = t.dataset.k; S.sid = null; S.wid = null; render(); return; }
+if(a==='settype'){ S.typeTab = t.getAttribute('k'); render(); return; }
 if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treinos';S.wid=null}
 else if(a==='openw'){S.wid=t.dataset.id;S.tab='treino'}
 else if(a==='addw'){const n=prompt('Nome do treino (ex.: Treino A, Peito e tríceps)');if(!n||!n.trim())return;const st=stu(),id=uid().slice(0,8);st.data.workouts.push({id,name:n.trim(),plan:[]});put(st.id,'student',st.data);S.wid=id;S.tab='ficha'}
@@ -352,22 +351,13 @@ else if(a==='nav')S.off+=+k;
 else if(a==='addst'){
   const isOnline = S.typeTab === 'online';
   const n=prompt('Nome do aluno');if(!n||!n.trim())return;
-  let em = '', wp = '';
+  let em = '';
   if(isOnline){
     em = prompt('E-mail do aluno (para acesso ao app):');
     if(!em || !em.trim()) return alert('E-mail é obrigatório para aluno online!');
     em = em.trim();
-    wp = prompt('Número do WhatsApp com DDD (ex: 11999999999):');
-    wp = wp ? wp.replace(/\D/g,'') : '';
   }
-  const newId = uid();
-  put(newId,'student',{name:n.trim(),email:em,whatsapp:wp,type:isOnline?'online':'presencial',workouts:[]});
-  
-  if(isOnline && wp){
-    const appUrl = window.location.href.split('?')[0];
-    const msg = encodeURIComponent(`Olá ${n.trim()}! Segue seu acesso para o aplicativo de treinos da consultoria:\n\n🔗 ${appUrl}\n\n📧 E-mail: ${em}\n🔑 Crie sua senha no primeiro acesso para visualizar seus treinos.`);
-    window.open(`https://wa.me/55${wp}?text=${msg}`, '_blank');
-  }
+  put(uid(),'student',{name:n.trim(),email:em,type:isOnline?'online':'presencial',workouts:[]});
 }
 else if(a==='addex'){const s=stu();W().plan.push({id:uid().slice(0,8),name:'',group:'',equip:'',mode:'load'});put(s.id,'student',s.data)}
 else if(a==='rmex'){const s=stu();W().plan.splice(i,1);put(s.id,'student',s.data)}

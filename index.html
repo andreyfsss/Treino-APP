@@ -225,7 +225,7 @@ const val=a=>me==='max'?Math.max(...a.map(q=>+q.kg||0)):me==='vol'?exVol(a):me==
 const fv=v=>me==='tmp'?mm(v):me==='ser'?v+' séries':me==='rep'?v+' reps':NF(v)+' kg';XH.m=me;
 XP=Object.keys(by).sort().map(d=>{const a=by[d],v=val(a);return{d,v,fv:fv(v),tip:`<div class=xh>${new Date(d+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'}).toUpperCase()}</div><div class=xv>${fv(v)}</div><div class=xs>${mn} · ${a.length} séries<br>${a.map((q,i)=>`${i+1}ª: ${esc(fa(q,m))}`).join('<br>')}</div>`}});
 const bs=XP.reduce((a,p)=>p.v>a.v?p:a,XP[0]||{v:0}),st=XP.length?`<div class=card><div class=eh><span class=mu>Primeiro</span><b>${XP[0].fv}</b></div><div class=eh style="margin-top:6px"><span class=mu>Melhor (${bs.d.split('-').reverse().slice(0,2).join('/')})</span><b>${bs.fv}</b></div><div class=eh style="margin-top:6px"><span class=mu>Último</span><b>${XP[XP.length-1].fv}</b></div></div><div class=card><b>Todos os treinos</b>${XP.slice().reverse().map(p=>`<div class=eh style="margin-top:6px"><span>${p.d.split('-').reverse().join('/')}</span><b>${p.fv}</b></div>`).join('')}</div>`:'';
-return `<button data-a=tab data-k=exl>‹ Exercícios</button><div class=card><b>${esc(e.name)||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><div style="font-weight:600;margin:6px 0">Progressão</div><div class=tabs>${MT.map(([k,l])=>`<button data-a=exm data-k=${k} class="${me===k?'on':''}">${l}</button>`).join('')}</div>${exChart()}</div>`+st}
+return `<button data-a=tab data-k=exl>‹ Exercícios</button><div class=card><b>${esc(e.name||'(sem nome)'}</b> <span class=mu>${esc(e.group||'Sem grupo')}${e.equip?' · '+esc(e.equip):''}</span><div style="font-weight:600;margin:6px 0">Progressão</div><div class=tabs>${MT.map(([k,l])=>`<button data-a=exm data-k=${k} class="${me===k?'on':''}">${l}</button>`).join('')}</div>${exChart()}</div>`+st}
 function vHist(){const ws={};(stu().data.workouts||[]).forEach(w=>ws[w.id]=w.name);
 const L=sessions(S.sid).sort((a,b)=>a.data.date===b.data.date?(a.updated_at<b.updated_at?1:-1):(a.data.date<b.data.date?1:-1));
 return '<p class=mu>Corrija a data ou exclua treinos registrados por engano.</p>'+(L.map(x=>`<div class=card><div class=eh><b>${esc(ws[x.data.workoutId]||'Treino')}</b><span class=mu>${x.data.done?'finalizado':'em aberto'}</span></div><div class=mu>${fmt(sesVol(x))} kg · ${sesN(x)} séries</div><div class=eh style="margin-top:8px"><input type=date data-sd="${x.id}" value="${x.data.date}" style="max-width:170px"><button class=lk data-a=delses data-id="${x.id}">Excluir</button></div></div>`).join('')||'<p class=mu>Nenhum treino registrado.</p>')}
@@ -266,7 +266,7 @@ const ic=(p,c)=>`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" str
 const TEC={drop:{n:'Drop set',d:'Reduz a carga sem descanso e continua a série. Cada redução é um drop.'},cluster:{n:'Cluster set',d:'Divide a série em blocos curtos com descanso breve, mantendo a carga.',rest:'20'}};
 const CJ=n=>n===2?'BI-SET':n===3?'TRI-SET':'GIANT SET';
 function cjTxt(a,b,cs){const pl=wpl();let v=0,n=0;for(let i=a;i<=b;i++){const r=cs&&cs.data.sets[pl[i].id];v+=exVol(r);n+=exN(r)}return `Soma · ${fmt(v)} kg · ${n} séries`}
-const mvB=(i,n,e)=>`<button class=lk2 data-a=mvx data-i=${i} data-k=-1 aria-label="Subir exercício">▲</button><button class=lk2 data-a=mvx data-i=${i} data-k=1 aria-label="Descer exercício" style="margin-right:10px">▼</button>`+(i<n-1?`<button class=lk2 data-a=cj data-i=${i} style="margin-right:14px">${e.cn?'Desfazer conjugado':'Conjugar com o de baixo'}</button>`:'');
+const mvB=(i,n,e)=>`<button class=lk2 data-a=mvx data-i=${i} data-k=-1 aria-label="Subir exercício">▲</button><button class=lk2 data-a=mvx data-i=${i} data-k=1 aria-label="Descer exercício" style="margin-right:10px">▼</button>`+(i<n-1?`<button class=lk2 data-a=cj data-i=${i} style="margin-right:14px">${e.cn?'Desfazer conjugado':'Conjugar com o de baixo'}`:'');
 function tecUI(id,i,c){const o=S.tm===id+':'+i,t=c.t,b=(a,k,x)=>`<button class="chip2${x?' on':''}" data-a=${a} data-e="${id}" data-i=${i} data-k=${k}>`;let h='';
 if(o)h+=`<div class=chips style="margin:4px 0 4px 34px">${Object.entries(TEC).map(([k,v])=>b('tset',k,t&&t.k===k)+v.n+'</button>').join('')}${t?b('tset','none')+'Remover técnica</button>':''}</div>`;
 if(t){const T=TEC[t.k],X=j=>`<button class=x data-a=tdel data-e="${id}" data-i=${i} data-j=${j} aria-label="Remover">✕</button>`;
@@ -320,6 +320,7 @@ return h+`<div class=card><span class=mu>Total · ${ss.length} treino(s)</span><
 
 function render(){
   const app=$('#app');
+  if(!app) return;
   checkStudentAutoOpen();
   app.innerHTML=!AU?loginV():S.v==='wk'?wkV():S.v==='pdf'&&stu()?pdfV():S.v==='home'||!stu()?home():sv();
   stat();

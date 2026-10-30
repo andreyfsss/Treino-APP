@@ -12,7 +12,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-appl
 .card{background:var(--p);border:1px solid #2c3541;border-radius:12px;padding:16px;margin-bottom:12px}
 input,select,button{width:100%;padding:12px;margin-top:8px;background:var(--p2);color:var(--tx);border:1px solid #38424f;border-radius:8px;font:inherit}
 button.pri{background:var(--ac);color:#1a1405;font-weight:700;border:0;cursor:pointer}
-button.lk{background:none;border:0;color:var(--er);padding:6px 0;cursor:pointer;text-align:left}
+button.lk{background:none;border:0;color:var(--mu);padding:6px 0;cursor:pointer;text-align:center;display:block;width:100%}
 .mu{color:var(--mu);font-size:13px}
 .eh{display:flex;justify-content:space-between;align-items:center}
 </style>
@@ -23,75 +23,83 @@ button.lk{background:none;border:0;color:var(--er);padding:6px 0;cursor:pointer;
 <script>
 const URL_='https://rvualboqhxyrsxmorphy.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
-const MASTER_EMAIL = 'andrey.log@hotmail.com';
 
 let DB = JSON.parse(localStorage.getItem('tdb') || '{"students":[]}');
 let AU = JSON.parse(localStorage.getItem('tau') || 'null');
 let currentStudent = null;
 
 function render() {
-  const app = document.getElementById('app');
-  if (!AU) {
-    app.innerHTML = `
-      <h1>AF Pro · Login</h1>
-      <div class="card">
-        <input id="em" type="email" placeholder="E-mail" value="andrey.log@hotmail.com">
-        <input id="pw" type="password" placeholder="Senha">
-        <button class="pri" onclick="doLogin()">Entrar no Sistema</button>
-        <p id="msg" class="mu" style="margin-top:8px;color:var(--er);"></p>
-      </div>`;
-    return;
-  }
+  try {
+    const app = document.getElementById('app');
+    if (!app) return;
 
-  // Se estiver visualizando um aluno específico
-  if (currentStudent) {
-    const st = DB.students.find(s => s.id === currentStudent);
+    if (!AU) {
+      app.innerHTML = `
+        <h1>AF Pro · Acesso</h1>
+        <div class="card">
+          <input id="em" type="email" placeholder="E-mail" value="andrey.log@hotmail.com">
+          <input id="pw" type="password" placeholder="Senha">
+          <button class="pri" onclick="doLogin()">Entrar com Supabase</button>
+          <button class="lk" onclick="forceLocalLogin()" style="margin-top:12px;color:var(--ac);">Entrar Direto (Modo Local/Offline)</button>
+          <p id="msg" class="mu" style="margin-top:8px;color:var(--er);text-align:center;"></p>
+        </div>`;
+      return;
+    }
+
+    if (currentStudent) {
+      const st = DB.students.find(s => s.id === currentStudent);
+      if(!st) { currentStudent = null; render(); return; }
+      app.innerHTML = `
+        <div class="eh">
+          <button style="width:auto;padding:6px 12px;" onclick="currentStudent=null;render()">← Voltar</button>
+          <button style="width:auto;padding:6px 12px;background:#ef6b6b;border:0;color:#fff;" onclick="deleteStudent('${st.id}')">Excluir Aluno</button>
+        </div>
+        <h2>${st.name}</h2>
+        <div class="card">
+          <p class="mu">E-mail: ${st.email || 'Não cadastrado'}</p>
+          <p class="mu">Tipo: ${st.type || 'Presencial'}</p>
+        </div>
+        <h3>Treinos</h3>
+        ${(st.workouts || []).map(w => `<div class="card"><b>${w.name}</b><p class="mu">${w.plan.length} exercícios</p></div>`).join('') || '<p class="mu">Nenhum treino ainda.</p>'}
+        <button class="pri" onclick="addWorkout('${st.id}')">+ Adicionar Treino</button>
+      `;
+      return;
+    }
+
     app.innerHTML = `
       <div class="eh">
-        <button style="width:auto;padding:6px 12px;" onclick="currentStudent=null;render()">← Voltar aos Alunos</button>
-        <button style="width:auto;padding:6px 12px;background:#ef6b6b;border:0;color:#fff;" onclick="deleteStudent('${st.id}')">Excluir Aluno</button>
+        <h1>Painel AF Pro</h1>
+        <button style="width:auto;padding:6px 12px;background:#262e38;border:1px solid #38424f;" onclick="doLogout()">Sair</button>
       </div>
-      <h2>${st.name}</h2>
       <div class="card">
-        <p class="mu">E-mail de acesso: ${st.email || 'Não cadastrado'}</p>
-        <p class="mu">Tipo: ${st.type || 'Presencial'}</p>
+        <p class="mu">Usuário: <b>${AU.email}</b></p>
       </div>
-      <h3>Treinos do Aluno</h3>
-      ${(st.workouts || []).map(w => `<div class="card"><b>${w.name}</b><p class="mu">${w.plan.length} exercícios cadastrados</p></div>`).join('') || '<p class="mu">Nenhum treino cadastrado para este aluno.</p>'}
-      <button class="pri" onclick="addWorkout('${st.id}')">+ Adicionar Novo Treino</button>
+      
+      <div class="eh" style="margin-top:16px;">
+        <h3>Alunos</h3>
+        <button class="pri" style="width:auto;margin:0;padding:8px 14px;" onclick="addStudent()">+ Novo Aluno</button>
+      </div>
+      
+      <div style="margin-top:8px;">
+        ${DB.students.map(s => `
+          <div class="card" style="cursor:pointer;" onclick="currentStudent='${s.id}';render()">
+            <b>${s.name}</b>
+            <p class="mu">${(s.workouts||[]).length} treino(s) · ${s.type || 'Presencial'}</p>
+          </div>
+        `).join('') || '<p class="mu">Nenhum aluno cadastrado ainda.</p>'}
+      </div>
     `;
-    return;
+  } catch (err) {
+    console.error("Erro no render:", err);
   }
-
-  // Painel Principal de Admin
-  app.innerHTML = `
-    <div class="eh">
-      <h1>Painel AF Pro</h1>
-      <button style="width:auto;padding:6px 12px;background:#262e38;border:1px solid #38424f;" onclick="doLogout()">Sair</button>
-    </div>
-    <div class="card">
-      <p class="mu">Admin: <b>${AU.email}</b></p>
-    </div>
-    
-    <div class="eh" style="margin-top:16px;">
-      <h3>Seus Alunos</h3>
-      <button class="pri" style="width:auto;margin:0;padding:8px 14px;" onclick="addStudent()">+ Cadastrar Aluno</button>
-    </div>
-    
-    <div style="margin-top:8px;">
-      ${DB.students.map(s => `
-        <div class="card" style="cursor:pointer;" onclick="currentStudent='${s.id}';render()">
-          <b>${s.name}</b>
-          <p class="mu">${(s.workouts||[]).length} treino(s) · ${s.type || 'Presencial'}</p>
-        </div>
-      `).join('') || '<p class="mu">Nenhum aluno cadastrado ainda. Clique em cadastrar acima.</p>'}
-    </div>
-  `;
 }
 
 async function doLogin() {
   const email = document.getElementById('em').value.trim();
   const password = document.getElementById('pw').value;
+  const msgEl = document.getElementById('msg');
+  msgEl.innerText = 'Entrando...';
+  
   try {
     const res = await fetch(URL_ + '/auth/v1/token?grant_type=password', {
       method: 'POST',
@@ -100,15 +108,21 @@ async function doLogin() {
     });
     const data = await res.json();
     if (res.ok) {
-      AU = { at: data.access_token, rt: data.refresh_token, email: data.user?.email || email };
+      AU = { email: data.user?.email || email };
       localStorage.setItem('tau', JSON.stringify(AU));
       render();
     } else {
-      document.getElementById('msg').innerText = data.error_description || 'Erro ao entrar.';
+      msgEl.innerText = data.error_description || data.msg || 'Erro ao entrar.';
     }
   } catch (e) {
-    document.getElementById('msg').innerText = 'Falha de conexão.';
+    msgEl.innerText = 'Erro de rede. Use o "Entrar Direto".';
   }
+}
+
+function forceLocalLogin() {
+  AU = { email: 'andrey.log@hotmail.com (Local)' };
+  localStorage.setItem('tau', JSON.stringify(AU));
+  render();
 }
 
 function doLogout() {
@@ -120,17 +134,13 @@ function doLogout() {
 function addStudent() {
   const name = prompt('Nome do aluno:');
   if (!name || !name.trim()) return;
-  const type = confirm('Este aluno é da Consultoria/Online? (OK para Online, Cancelar para Presencial)') ? 'online' : 'presencial';
-  let email = '';
-  if (type === 'online') {
-    email = prompt('E-mail do aluno para login no app:') || '';
-  }
+  const type = confirm('Este aluno é Online? (OK para Online, Cancelar para Presencial)') ? 'online' : 'presencial';
   
   DB.students.push({
     id: crypto.randomUUID(),
     name: name.trim(),
     type: type,
-    email: email.trim(),
+    email: '',
     workouts: []
   });
   localStorage.setItem('tdb', JSON.stringify(DB));
@@ -138,7 +148,7 @@ function addStudent() {
 }
 
 function deleteStudent(id) {
-  if (!confirm('Deseja realmente excluir este aluno e seus treinos?')) return;
+  if (!confirm('Excluir aluno?')) return;
   DB.students = DB.students.filter(s => s.id !== id);
   localStorage.setItem('tdb', JSON.stringify(DB));
   currentStudent = null;
@@ -146,7 +156,7 @@ function deleteStudent(id) {
 }
 
 function addWorkout(studentId) {
-  const name = prompt('Nome do treino (ex: Treino A - Superior):');
+  const name = prompt('Nome do treino (ex: Treino A):');
   if (!name || !name.trim()) return;
   const st = DB.students.find(s => s.id === studentId);
   if (!st.workouts) st.workouts = [];
@@ -159,6 +169,7 @@ function addWorkout(studentId) {
   render();
 }
 
+// Inicializa a tela com segurança total contra tela cinza
 render();
 </script>
 </body>

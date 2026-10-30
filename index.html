@@ -1,286 +1,83 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#14181d"><link rel="manifest" href="manifest.webmanifest">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Treino">
 <title>AF Pro</title>
 <style>
 :root{--bg:#14181d;--p:#1d232b;--p2:#262e38;--tx:#e9e6df;--mu:#8f98a3;--ac:#f2b84b;--er:#ef6b6b}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-#app{max-width:640px;margin:0 auto;padding:14px 14px 60px}
-h1{font-size:22px;margin:6px 0 12px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,sans-serif;padding:20px}
+#app{max-width:600px;margin:0 auto}
+.card{background:var(--p);border:1px solid #2c3541;border-radius:12px;padding:16px;margin-bottom:12px}
+input,button{width:100%;padding:12px;margin-top:8px;background:var(--p2);color:var(--tx);border:1px solid #38424f;border-radius:8px;font:inherit}
+button.pri{background:var(--ac);color:#1a1405;font-weight:700;border:0}
 .mu{color:var(--mu);font-size:13px}
-button.lk,button.lk2,button.ed,button.x,button.nm{border:0}button.pri,.tabs .on,.chip2.on{border-color:var(--ac)}
-@supports(min-height:100dvh){.homew{min-height:calc(100dvh - 90px)}}
-.homew{display:flex;flex-direction:column;justify-content:space-between;min-height:calc(100vh - 90px)}.foot{margin-top:40px;padding-top:12px;border-top:1px solid #2c3541}
-button.nb{background:var(--p2);border:1px solid #38424f;border-radius:8px;padding:0;height:34px;color:var(--tx);font:inherit;font-size:14px}
-.tec{margin:2px 0 8px 34px;padding:8px;border:1px dashed #5a4a22;border-radius:10px;background:#1b1f26}
-.tr2{display:grid;grid-template-columns:96px 56px 56px 28px;gap:6px;align-items:center;margin-top:6px}.tr2 input{height:34px;padding:4px;text-align:center}
-.hd{display:flex;justify-content:space-between;align-items:center}.brand{font-size:21px;font-weight:800;letter-spacing:.3px}.brand b{color:var(--ac)}
-button.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #2c3541;border-radius:999px;background:#12171e;font-size:12px;color:#cfcac0}
-.scard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--p);border:1px solid #2c3541;border-radius:14px;padding:14px;margin:10px 0;color:var(--tx)}
-.av{width:44px;height:44px;border-radius:12px;background:#232b37;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}.sn{flex:1;display:flex;flex-direction:column;min-width:0}.sn small{color:var(--mu);font-size:13px}
-@media (hover:hover){.scard:hover{background:var(--ac);color:#1a1405}.scard:hover .mu{color:#4a3a10}}
-button.amber{background:var(--ac);color:#1a1405;border-color:var(--ac);font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:9px 12px;font-size:13px}
-.gd{border:1px solid #2c3541;border-radius:14px;padding:12px;background:var(--p)}.gl{font-size:12px;letter-spacing:.5px;color:var(--mu);margin-bottom:8px}.gg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gg button{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 6px;font-size:13px}
-.foot{border-top:0;padding-top:0}
-button.bkb{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 14px;background:#1d242e}.sname{font-size:17px}
-.tabbar{display:flex;gap:6px;padding:6px;background:#10151c;border:1px solid #2c3541;border-radius:16px;margin:8px 0 12px}
-.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;padding:8px 2px;border:0;background:transparent;border-radius:12px;color:#aab2bd}
-.tabbar button.on{background:var(--ac);color:#1a1405;font-weight:700}.t2{font-size:10px;line-height:1.1;text-align:center;display:block}
-@media (min-width:560px){.tabbar button{flex-direction:row;gap:7px;font-size:14px}}
-button.tile{background:transparent;text-align:left;display:block;width:100%;color:var(--tx)}button.tile.on{border-color:var(--ac)}
-.pn{margin-top:8px;padding:10px;border:1px solid #5a4a22;background:#1b1f26;border-radius:10px;font-size:13px;line-height:1.6}
-details summary{cursor:pointer}.bl details summary{list-style:none}.bl details summary::-webkit-details-marker{display:none}
-#tb{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom) + 6px);font-size:10px;color:var(--ac);opacity:.8;z-index:5;pointer-events:none}
-.paper,.paper *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.paper{background:#fff;color:#111;border-radius:6px;padding:16px;margin-top:10px;font-size:13px}.paper .ph{background:#111;color:#fff;margin:-16px -16px 12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}.paper h2{margin:2px 0 0;font-size:20px}.paper small{font-size:10px;letter-spacing:.5px;color:#aaa;display:block}.paper .pg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}.paper .pg div{border:1px solid #ddd;border-radius:6px;padding:8px}.paper .pg small{color:#777}.paper .pg b{font-size:18px}.paper h3{font-size:12px;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid #f2b84b;padding-bottom:3px;margin:16px 0 6px}.paper table{width:100%;border-collapse:collapse}.paper th{background:#111;color:#fff;text-align:left;font-size:11px;padding:5px 6px}.paper td{border-bottom:1px solid #e5e5e5;padding:5px 6px}
-@media print{body{background:#fff}.noprint,#st,#tb{display:none!important}#app{padding:0;max-width:none}.paper{border-radius:0;padding:0}.paper .ph{margin:0 0 12px}}
-#st{position:fixed;right:10px;bottom:calc(env(safe-area-inset-bottom) + 6px);font-size:11px;color:var(--mu);opacity:.6;pointer-events:none;z-index:5}.chip{font-size:12px;color:var(--mu)}
-.card{background:var(--p);border-radius:12px;padding:12px;margin:10px 0;color:inherit;border:1px solid #2c3541}
-.big{font-size:26px;font-variant-numeric:tabular-nums;color:var(--ac)}
-.eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.sr{display:grid;grid-template-columns:28px minmax(84px,1fr) 56px 56px 72px 28px;gap:6px;margin-top:6px;align-items:center;color:var(--mu)}
-.sr2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
-textarea{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:0;border-radius:8px;padding:10px;font:inherit;resize:none;overflow:hidden;margin-top:6px}
-button.ed{background:none;color:var(--mu);padding:0 6px;font-size:16px;vertical-align:middle}
-button.ed:hover{color:var(--ac)}
-@media (hover:hover){button.card:hover{background:var(--ac);color:#1a1405}button.card:hover .mu{color:#4a3a10}}
-button.nm{background:none;padding:0;font-weight:700;font-size:16px;text-align:left;color:var(--tx)}
-.sr .ant{background:var(--p2);color:var(--tx);border-radius:8px;padding:6px 4px;font-size:13px;line-height:1.2;text-align:center;min-height:34px;display:flex;align-items:center;justify-content:center}
-.sr input,.sr select{padding:4px 4px;height:34px}
-.sr input{text-align:center}
-.sr button.x{padding:4px 2px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.chip2{display:inline-flex;align-items:center;gap:6px;background:var(--p2);color:var(--tx);border-radius:8px;padding:8px 10px;font-size:14px}
-.chip2 i{width:12px;height:12px;border-radius:3px;display:inline-block}.chip2.on{outline:2px solid var(--ac)}
-.bl{list-style:none;padding:0;margin:8px 0 0}.bl li{position:relative;padding-left:18px;margin:8px 0}.bl li:before{content:"";position:absolute;left:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--ac)}
-.tl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.tile{border:1px solid #2c3541;border-radius:12px;padding:10px;min-height:76px}.tile b{display:block;font-size:20px;color:var(--ac);margin-bottom:4px}.tile span{font-size:10px;color:var(--mu);letter-spacing:.4px}
-.sgr{display:flex;align-items:stretch;gap:8px;margin:8px 0}.sgb{flex:1;background:var(--p2);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.5}.sgb.nx{background:#2a2518;border:1px solid #5a4a22}.sga{align-self:center;color:var(--ac);font-size:20px}.bd{background:#1f3a2a;color:#6fcf97;border-radius:6px;padding:1px 6px;font-size:12px}.ac{color:var(--ac)}
-details.sgd{margin:6px 0}details.sgd summary,.sgb+details summary{cursor:pointer}
-button.nm:hover{color:var(--ac)}
-#xt{position:absolute;display:none;background:#1d232b;border:1px solid #3a4350;border-radius:10px;padding:10px 14px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.45);min-width:160px;max-width:260px;z-index:3}
-.xh{font-size:14px;letter-spacing:.4px;color:#cfcac0}.xv{font-size:20px;font-weight:700;margin-top:4px}.xs{font-size:12px;color:var(--mu);margin-top:6px;line-height:1.5}
-button.x{background:none;color:var(--er);padding:8px 2px;font-size:16px}
-button.lk2{background:none;color:var(--mu);padding:6px 0;font-size:13px}
-input,select{width:100%;min-width:0;background:var(--p2);color:var(--tx);border:1px solid #38424f;border-radius:8px;padding:10px;font:inherit}
-input:focus,select:focus,button:focus-visible{outline:2px solid var(--ac)}
-input::placeholder{color:#59626d}
-button{background:var(--p2);color:var(--tx);border:1px solid #38424f;border-radius:8px;padding:10px 14px;font:inherit}
-button.pri{background:var(--ac);color:#1a1405;width:100%;margin-top:8px;font-weight:600}
-button.lk{background:none;color:var(--er);padding:6px 0}
-.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1;padding:10px 4px}.tabs .on{background:var(--ac);color:#1a1405;font-weight:600}
-.bar{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;margin:4px 0;border-radius:6px;background:linear-gradient(90deg,var(--p2) var(--w),transparent var(--w))}
-.bar span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
-</style></head><body><div id="app"></div><div id="st"></div><div id="tb">AF PRO (HÍBRIDO)</div>
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>AF Pro - Carregando...</h1>
+</div>
+
 <script>
-const URL_='https://rvualboqhxyrsxmorphy.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
+const URL_='https://rvualboqhxyrsxmorphy.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dWFsYm9xaHh5cnN4bW9ycGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDU3NTgsImV4cCI6MjEwNzc4MTc1OH0.N1SS3KXuCAqVVp9GWHz9U-KNr_S0rG8zX4J0zmaAiQs';
 const MASTER_EMAIL = 'andrey.log@hotmail.com';
-const EQ=['Aparelho','Livre','Halter','Barra','Anilha','Kettlebell','Mini band','Elástico','Peso corporal'];
-const MD=[['load','Carga e repetições'],['bw','Sem carga (só repetições)'],['time','Tempo (min e seg)']];
-const HD={load:'<div class=sr><span></span><span>Anterior</span><span>kg</span><span>reps</span><span class=rl>RPE</span><span></span></div>',bw:'<div class=sr><span></span><span>Anterior</span><span>reps</span><span></span><span class=rl>RPE</span><span></span></div>',time:'<div class=sr><span></span><span>Anterior</span><span>min</span><span>seg</span><span class=rl>RPE</span><span></span></div>'};
-const fa=(x,m)=>m==='load'?dc(x.kg||0)+'kg × '+(x.reps||0)+(x.rpe?' @'+dc(x.rpe):''):fs(x,m);
-const NF=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:2});
-let XP=[];const XH={W:360,H:240,l:48,r:18,t:22,b:34,X:[],Y:[],m:''};
-const mm=t=>Math.floor(t/60)+':'+String(Math.round(t%60)).padStart(2,'0');
-const dc=v=>String(v).replace('.',','),fs=(x,m)=>(m==='time'?mm(+x.sec||0):m==='bw'?(x.reps||0)+' reps':dc(x.kg||0)+'×'+(x.reps||0))+(x.rpe?' @'+dc(x.rpe):'');
-const exTot=(a,m)=>{a=a||[];return m==='time'?'Tempo total: '+mm(a.reduce((n,x)=>n+(+x.sec||0),0)):m==='bw'?'Total: '+a.reduce((n,x)=>n+(+x.reps||0),0)+' reps':'Volume: '+fmt(exVol(a))+' kg'};
-const G=['Peito','Costas','Ombros','Bíceps','Tríceps','Quadríceps','Posterior','Glúteos','Panturrilha','Abdômen','Outro'];
-const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID();
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let DB=JSON.parse(localStorage.getItem('tdb')||'{"docs":{},"pull":""}'),AU=JSON.parse(localStorage.getItem('tau')||'null');
-const S={v:'home',sid:null,wid:null,tab:'treino',sub:[0,6].includes(new Date().getDay())?'rel':'vol',per:'w',off:0,msg:'',st:'',typeTab:'presencial',authMode:'login'};
-const persist=()=>localStorage.setItem('tdb',JSON.stringify(DB));
-const ts=s=>Date.parse(s);
-function put(id,kind,data){const d=DB.docs[id]||{id,kind};d.data=data;d.updated_at=new Date().toISOString();d.dirty=1;d.deleted=!!d.deleted;DB.docs[id]=d;persist();syncSoon()}
-function del(id){const d=DB.docs[id];if(!d)return;d.deleted=true;d.updated_at=new Date().toISOString();d.dirty=1;persist();syncSoon()}
-const list=k=>Object.values(DB.docs).filter(d=>d.kind===k&&!d.deleted);
-const p2=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),today=()=>ds(new Date());
-const fd=s=>s.slice(8)+'/'+s.slice(5,7),fmt=n=>Math.round(n).toLocaleString('pt-BR');
-const stu=()=>DB.docs[S.sid],W=()=>{const t=stu();return t&&(t.data.workouts||[]).find(w=>w.id===S.wid)},wpl=()=>(W()||{plan:[]}).plan,allPl=()=>(stu()?.data?.workouts||[]).flatMap(w=>w.plan),sessions=sid=>list('session').filter(d=>d.data.studentId===sid);
-const setVol=x=>(+x.kg||0)*(+x.reps||0)+(x.t?(x.t.k==='drop'?(x.t.d||[]).reduce((n,q)=>n+(+q.kg||0)*(+q.reps||0),0):(x.t.c||[]).reduce((n,r)=>n+(+x.kg||0)*(+r||0),0)):0),exVol=a=>(a||[]).reduce((n,x)=>n+setVol(x),0);
-const exN=a=>(a||[]).filter(x=>+x.reps>0||+x.sec>0).length;
-const sesVol=s=>Object.values(s.data.sets).reduce((n,a)=>n+exVol(a),0),sesN=s=>Object.values(s.data.sets).reduce((n,a)=>n+exN(a),0);
-const isMaster=()=>!AU || !AU.email || AU.email.toLowerCase() === MASTER_EMAIL.toLowerCase();
 
-/* ---- sincronização ---- */
-function setAu(j){AU={at:j.access_token,rt:j.refresh_token,email:j.user?j.user.email:(AU?AU.email:''),exp:j.expires_at||Math.floor(Date.now()/1000)+j.expires_in};localStorage.setItem('tau',JSON.stringify(AU))}
-async function tok(){if(!AU || !AU.exp) return null; if(AU.exp<Date.now()/1000+60){const r=await fetch(URL_+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:AU.rt})}).catch(()=>null);
-if(!r || !r.ok){AU=null;localStorage.removeItem('tau');render();return null}setAu(await r.json())}return AU.at}
-let busy=0,timer;
-function syncSoon(){clearTimeout(timer);timer=setTimeout(sync,1500);stat()}
-async function sync(){if(busy||!AU||!navigator.onLine)return;busy=1;S.st='Sincronizando…';stat();
-try{const token = await tok(); if(!token) { busy=0; return; } const h={apikey:KEY,Authorization:'Bearer '+token,'Content-Type':'application/json'};
-const dirty=Object.values(DB.docs).filter(d=>d.dirty).map(d=>[d,d.updated_at]);
-if(dirty.length){const r=await fetch(URL_+'/rest/v1/docs',{method:'POST',headers:{...h,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(dirty.map(([d])=>({id:d.id,kind:d.kind,data:d.data,updated_at:d.updated_at,deleted:d.deleted})))});
-if(!r.ok)throw 1;dirty.forEach(([d,u])=>{if(d.updated_at===u)delete d.dirty})}
-for(;;){const r=await fetch(URL_+'/rest/v1/docs?select=*&order=synced_at.asc&limit=1000'+(DB.pull?'&synced_at=gt.'+encodeURIComponent(DB.pull):''),{headers:h});
-if(!r.ok)throw 2;const rows=await r.json();
-rows.forEach(x=>{const l=DB.docs[x.id];if(!l||!l.dirty||ts(x.updated_at)>ts(l.updated_at))DB.docs[x.id]={id:x.id,kind:x.kind,data:x.data,updated_at:x.updated_at,deleted:x.deleted};DB.pull=x.synced_at});
-if(rows.length<1000)break}
-migAll();persist();const n=new Date();S.st='Sincronizado '+p2(n.getHours())+':'+p2(n.getMinutes());
-if(!document.activeElement||document.activeElement.tagName!=='INPUT')render()}
-catch(e){S.st='Não sincronizado'}
-busy=0;stat()}
-function stat(){const d=Object.values(DB.docs).filter(x=>x.dirty).length,tx=S.st+(d?' · '+d+' pendente(s)':''),n=$('#st'),m=$('#st2');if(n)n.textContent=tx;if(m){const c=S.st.startsWith('Sincronizado')?'#2ecc8f':S.st.startsWith('Sincroniz')?'#f2b84b':S.st?'#ef6b6b':'#8f98a3';m.innerHTML=`<i style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block"></i> ${esc(tx||'Sincronizar')}`}}
+let DB = JSON.parse(localStorage.getItem('tdb') || '{"docs":{}}');
+let AU = JSON.parse(localStorage.getItem('tau') || 'null');
 
-function migAll(){list('student').forEach(st=>{if(!st.data.workouts){st.data.workouts=[{id:'w'+st.id.slice(0,8),name:'Treino 1',plan:st.data.plan||[]}];delete st.data.plan;put(st.id,'student',st.data)}});
-list('session').forEach(x=>{if(!x.data.workoutId){const st=DB.docs[x.data.studentId],w=st&&st.data.workouts&&st.data.workouts[0];if(w){x.data.workoutId=w.id;put(x.id,'session',x.data)}}})}
-
-/* ---- telas ---- */
-function loginV(){
-  const isReg = S.authMode === 'signup';
-  return `<h1>AF Pro ${isReg?'Criar Conta':'Acesso do Aluno'}</h1>
-  <div class=card>
-    ${isReg?`<input id=name type=text placeholder="Seu nome completo"><div style="height:8px"></div>`:''}
-    <input id=em type=email placeholder="E-mail" autocomplete=username>
-    <div style="height:8px"></div>
-    <input id=pw type=password placeholder="Senha" autocomplete=current-password>
-    <button class=pri data-a="${isReg?'signup':'login'}">${isReg?'Cadastrar':'Entrar'}</button>
-    <p class=mu>${esc(S.msg)}</p>
-    <div style="margin-top:12px;text-align:center">
-      <button class=lk2 data-a=toggleauth>${isReg?'Já tem conta? Entrar':'Primeiro acesso? Criar conta'}</button>
-    </div>
-  </div>`
-}
-
-function home(){
-if(!isMaster() && AU){
-  const stDoc = list('student').find(s => s.data.email && s.data.email.toLowerCase() === AU.email.toLowerCase());
-  if(stDoc){ S.v = 'st'; S.sid = stDoc.id; return sv(); }
-  else { return `<div class=card><h2>Bem-vindo!</h2><p class=mu>Sua conta foi criada. Aguarde o personal disponibilizar sua ficha de treinos no aplicativo.</p><button class=pri data-a=logout>Sair</button></div>`; }
-}
-const isOnline = S.typeTab === 'online';
-const L = list('student').filter(s => isOnline ? s.data.type === 'online' : (!s.data.type || s.data.type === 'presencial')).sort((a,b)=>a.data.name.localeCompare(b.data.name));
-const nt = s => (s.data.workouts||[]).length;
-return `<div class=homew><div><div class=hd><div class=brand><b>AF</b> Pro</div><button class=pill id=st2 data-a=sync></button></div>
-<div class="tabs" style="margin-top:14px"><button class="${!isOnline?'on':''}" data-a=settype data-k=presencial>Presenciais</button><button class="${isOnline?'on':''}" data-a=settype data-k=online>Online / Cadastro</button></div>
-<div class=eh style="align-items:flex-start;gap:10px;margin:12px 0 8px"><div><h1 style="margin:0;font-size:22px">${isOnline?'Alunos Cadastrados Online':'Alunos Presenciais'}</h1><div class=mu>${isOnline?'Alunos que acessam pelo aplicativo':'Alunos acompanhados presencialmente'}</div></div><button class=amber data-a=addst>${ic(P.uplus)} Novo Aluno</button></div>`+
-(L.map(s=>`<button class=scard data-a=open data-id="${s.id}"><span class=av>${esc(s.data.name.trim().slice(0,2).toUpperCase())}</span><span class=sn><b>${esc(s.data.name)}</b><small>${nt(s)} ${nt(s)===1?'treino':'treinos'}${s.data.email?' · '+esc(s.data.email):''}</small></span>${ic(P.chev,'#8f98a3')}</button>`).join('')||`<p class=mu>Nenhum aluno cadastrado aqui ainda.</p>`)+
-`</div><div class=foot><div class=gd><div class=gl>GESTÃO DE DADOS</div><div class=gg><button data-a=wk>${ic(P.bars,'#f2b84b')} Relatórios</button><button data-a=export>${ic(P.dl,'#6fcf97')} Backup</button><button onclick="$('#imp').click()">${ic(P.ul,'#6aa6ff')} Restaurar</button><button data-a=logout>${ic(P.out,'#f28cb1')} Sair</button></div></div><input id=imp type=file accept=.json hidden></div></div>`}
-
-const wr=()=>{const n=new Date(),k=(n.getDay()+6)%7,a=new Date(n.getFullYear(),n.getMonth(),n.getDate()-k);return[a,new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)]};
-function agg(st,a,b){const A=ds(a),B=ds(b),pl=(st.data.workouts||[]).flatMap(w=>w.plan),nm={},gm={},ws={},ex={},gr={};pl.forEach(e=>{nm[e.id]=e.name||'(sem nome)';gm[e.id]=e.group});(st.data.workouts||[]).forEach(w=>ws[w.id]=w.name);
-const ss=sessions(st.id).filter(x=>x.data.date>=A&&x.data.date<=B&&sesN(x)>0).sort((x,y)=>x.data.date<y.data.date?-1:1);let V=0,N=0;
-ss.forEach(x=>Object.entries(x.data.sets).forEach(([id,arr])=>{const n=exN(arr);if(!n)return;const v=exVol(arr),r=arr.map(q=>+q.rpe).filter(q=>q>0),g=gm[id]||'Outro',m=nm[id]||'(exercício removido)',e=(ex[m]??={v:0,n:0,r:[],t:0,rp:0}),q=(gr[g]??={v:0,n:0});e.v+=v;e.n+=n;e.r.push(...r);e.t+=arr.reduce((u,q)=>u+(+q.sec||0),0);e.rp+=arr.reduce((u,q)=>u+(+q.reps||0),0);q.v+=v;q.n+=n;V+=v;N+=n}));
-return{ss,ex,gr,V,N,ws}}
-function repText(st,a,b,w){const o=agg(st,a,b),pa=w?new Date(a.getFullYear(),a.getMonth(),a.getDate()-7):new Date(a.getFullYear(),a.getMonth()-1,1),pb=w?new Date(b.getFullYear(),b.getMonth(),b.getDate()-7):new Date(a.getFullYear(),a.getMonth(),0),p=agg(st,pa,pb);
-const L=[`Relatório ${w?'da semana':'do mês'} · ${st.data.name}`,fd(ds(a))+' a '+fd(ds(b)),''];
-if(!o.ss.length){L.push('Nenhum treino registrado no período.');return L.join('\n')}
-L.push(`Treinos: ${o.ss.length} · Volume: ${fmt(o.V)} kg · Séries: ${o.N}`);
-if(p.V)L.push(`Volume vs. período anterior: ${o.V>=p.V?'+':''}${Math.round((o.V/p.V-1)*100)}% (${fmt(p.V)} kg)`);
-L.push('','Treinos:',...o.ss.map(x=>`- ${fd(x.data.date)} ${o.ws[x.data.workoutId]||'Treino'}: ${fmt(sesVol(x))} kg, ${sesN(x)} séries`));
-L.push('','Por grupo muscular:',...Object.entries(o.gr).sort((x,y)=>y[1].n-x[1].n).map(([g,x])=>`- ${g}: ${x.n} séries, ${fmt(x.v)} kg`));
-L.push('','Por exercício:',...Object.entries(o.ex).sort((x,y)=>y[1].v-x[1].v).map(([k,x])=>`- ${k}: ${x.n} séries, ${x.v?fmt(x.v)+' kg':x.t?'tempo total '+mm(x.t):x.rp+' repetições'}${x.r.length?', RPE médio '+(x.r.reduce((m,n)=>m+n,0)/x.r.length).toFixed(1).replace('.',','):''}`));
-return L.join('\n')}
-async function share(text){try{if(navigator.share){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
-try{await navigator.clipboard.writeText(text);alert('Relatório copiado. Cole no WhatsApp ou no e-mail.')}catch{prompt('Copie o relatório:',text)}}
-function wkV(){const[a,b]=wr(),L=list('student').sort((x,y)=>x.data.name.localeCompare(y.data.name));
-return `<div class=eh><button data-a=back>‹ Alunos</button></div><h1 style="text-align:center">Relatórios da semana</h1><p class=mu style="text-align:center">${fd(ds(a))} a ${fd(ds(b))}</p>`+(L.map(t=>{const o=agg(t,a,b);return `<div class=card><div class=eh><b>${esc(t.data.name)}</b><span class=mu>${o.ss.length} treino(s) · ${fmt(o.V)} kg</span></div><button class=pri data-a=shst data-id="${t.id}">Enviar relatório</button></div>`}).join('')||'<p class=mu>Nenhum aluno.</p>')}
-
-function vExL(){const L=stu().data.workouts||[];
-return '<p class=mu>Toque em um exercício para ver o histórico.</p>'+(L.map(w=>`<div class=mu style="margin:14px 2px 4px"><b>${esc(w.name)}</b></div>`+(w.plan.map(e=>{return `<button class=card style="width:100%;text-align:left" data-a=exh data-id="${e.id}"><b>${esc(e.name||'(sem nome)')}</b></button>`}).join('')||'<p class=mu>Sem exercícios.</p>')).join('')||'<p class=mu>Nenhum treino.</p>'}
-function vExH(){const e=allPl().find(x=>x.id===S.ex);if(!e){XP=[];return ''}return `<button data-a=tab data-k=exl>‹ Exercícios</button><div class=card><b>${esc(e.name||'(sem nome)')}</b></div>`}
-function vHist(){const ws={};(stu().data.workouts||[]).forEach(w=>ws[w.id]=w.name);
-const L=sessions(S.sid).sort((a,b)=>a.data.date===b.data.date?-1:1);
-return '<p class=mu>Histórico de treinos.</p>'+(L.map(x=>`<div class=card><div class=eh><b>${esc(ws[x.data.workoutId]||'Treino')}</b><span class=mu>${fmt(sesVol(x))} kg</span></div><button class=lk data-a=delses data-id="${x.id}">Excluir</button></div>`).join('')||'<p class=mu>Nenhum treino registrado.</p>')}
-
-function vTreinos(){
-  const st = stu();
-  const L = st.data.workouts||[];
-  const presentials = list('student').filter(s => s.data.type !== 'online' && s.id !== st.id);
-  
-  let copyUI = '';
-  if(isMaster() && presentials.length){
-    copyUI = `<details class=card style="margin-top:16px"><summary><b>Copiar treino de aluno presencial</b></summary>
-    <div style="margin-top:8px">
-      <select id=selCopy>
-        <option value="">Selecione o aluno de origem...</option>
-        ${presentials.map(p => `<option value="${p.id}">${esc(p.data.name)}</option>`).join('')}
-      </select>
-      <button class=pri style="margin-top:6px" data-a=docopy>Copiar Fichas para ${esc(st.data.name)}</button>
-    </div></details>`;
-  }
-
-  return (L.map(w=>{
-    return `<button class=card style="width:100%;text-align:left" data-a=openw data-id="${w.id}"><b>${esc(w.name)}</b> <span class=mu>${w.plan.length} exercícios</span></button>`
-  }).join('')||'<p class=mu>Nenhum treino cadastrado.</p>') + 
-  (isMaster()?`<button class=pri data-a=addw>Adicionar treino</button>${copyUI}<button class=lk style="margin-top:20px" data-a=delst>Excluir aluno</button>`:'');
-}
-
-function sv(){const st=stu(),w=W(),top=`<div class=eh style="margin-bottom:10px">${isMaster()?`<button class=bkb data-a=back>${ic(P.back)} ${w?'Treinos':'Alunos'}</button>`:''}<b class=sname>${esc(st.data.name)}${isMaster()?`<button class=ed data-a=rens>✎</button>`:''}</b></div>${w?`<h1 style="margin:2px 0 10px">${esc(w.name)}${isMaster()?`<button class=ed data-a=renw>✎</button>`:''}</h1>`:''}`,
-T2=(k,l,i)=>`<button data-a=tab data-k=${k} class="${S.tab===k||k==='exl'&&S.tab==='exh'?'on':''}">${ic(i)}<span>${l}</span></button>`;
-if(w)return top+(S.tab==='fim'?vFim():`<div class=tabbar>${T2('treino','Treino',P.db)}${isMaster()?T2('ficha','Ficha',P.list):''}</div>`+(S.tab==='ficha'&&isMaster()?vFicha():vTreino()));
-return top+`<div class=tabbar>${T2('treinos','Treinos',P.db)}${T2('exl','Exercícios',P.pulse)}${T2('hist','Histórico',P.cal)}</div>`+(S.tab==='hist'?vHist():S.tab==='exl'?vExL():S.tab==='exh'?vExH():vTreinos())}
-
-function curSes(c){let s=sessions(S.sid).find(d=>d.data.date===today()&&!d.data.done&&d.data.workoutId===S.wid);if(!s&&c){const id=uid();put(id,'session',{studentId:S.sid,workoutId:S.wid,date:today(),sets:{}});s=DB.docs[id]}return s}
-function last(id){const s=sessions(S.sid).filter(x=>(x.data.date<today()||x.data.done)&&exN(x.data.sets[id])).sort((a,b)=>a.data.date<b.data.date?1:-1)[0];return s?{d:s.data.date,a:s.data.sets[id]}:{d:'',a:[]}}
-function vTreino(){const pl=wpl();if(!pl.length)return '<p class=mu>Nenhum exercício montado neste treino ainda.</p>';const cs=curSes();
-return pl.map((e,ix)=>{const cur=(cs&&cs.data.sets[e.id])||[],lp=last(e.id),n=rowsN(e.id,cs),m=e.mode||'load',F=m==='time'?['mn','sg']:m==='bw'?['reps']:['kg','reps'];let rows=HD[m];
-for(let i=0;i<n;i++){const c=cur[i]||{},p=lp.a[i]||{};rows+=`<div class=sr><button class=nb data-a=tq data-e="${e.id}" data-i=${i}>${i+1}</button><span class=ant>${lp.a[i]?esc(fa(p,m)):'–'}</span>${F.map(k=>`<input inputmode=decimal data-e="${e.id}" data-i=${i} data-k=${k} value="${esc(c[k]??'')}">`).join('')}${m==='bw'?'<span></span>':''}<button class=x data-a=delset data-e="${e.id}" data-i=${i}>✕</button></div>`}
-return `<div class=card><div class=eh><b>${esc(e.name||'(sem nome)')}</b></div>${rows}<button data-a=addset data-e="${e.id}">+ série</button></div>`}).join('')+'<button class=pri data-a=finish>Finalizar treino</button>'}
-function rowsN(id,cs){const d=cs&&cs.data,a=(d&&d.sets[id])||[],r=d&&d.rows&&d.rows[id];return Math.max(r??Math.max(last(id).a.length,1),a.length)}
-const P={chev:'<path d="m9 6 6 6-6 6"/>',back:'<path d="m15 6-6 6 6 6"/>',uplus:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 12 0v1M19 8v6M16 11h6"/>',bars:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',dl:'<path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/>',ul:'<path d="M12 15V3m0 0L8 7m4-4 4 4M4 21h16"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',db:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>',pulse:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'};
-const ic=(p,c)=>`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="${c||'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-function vFicha(){const pl=wpl();return pl.map((e,i)=>`<div class=card><input data-p=name data-i=${i} value="${esc(e.name)}" placeholder="Exercício"><button class=lk data-a=rmex data-i=${i}>Remover</button></div>`).join('')+'<button class=pri data-a=addex>+ Exercício</button>'}
-function render(){const app=$('#app');if(!app)return;app.innerHTML=home();stat();}
-
-async function login(){
-  const em = $('#em').value.trim(), pw = $('#pw').value;
-  const r = await fetch(URL_+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw})}).catch(()=>null);
-  if(r&&r.ok){ setAu(await r.json()); S.msg=''; render(); sync(); }
-  else { S.msg='E-mail ou senha incorretos.'; render(); }
-}
-
-async function signup(){
-  const name = $('#name')?$('#name').value.trim():'', em = $('#em').value.trim(), pw = $('#pw').value;
-  if(!em || !pw) return alert('Preencha e-mail e senha!');
-  const r = await fetch(URL_+'/auth/v1/signup',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw})}).catch(()=>null);
-  if(r&&r.ok){
-    const j = await r.json();
-    setAu(j);
-    put(uid(),'student',{name:name||'Aluno',email:em,type:'online',workouts:[]});
-    S.msg=''; render(); sync();
-  } else { S.msg='Erro ao criar conta. Tente outra senha.'; render(); }
-}
-
-document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,k=t.dataset.k,i=+t.dataset.i;
-if(a==='login')return login();
-if(a==='signup')return signup();
-if(a==='toggleauth'){ S.authMode = S.authMode==='login'?'signup':'login'; render(); return; }
-if(a==='settype'){ S.typeTab = k; render(); return; }
-if(a==='open'){S.v='st';S.sid=t.dataset.id;S.tab='treinos';S.wid=null}
-else if(a==='openw'){S.wid=t.dataset.id;S.tab='treino'}
-else if(a==='addw'){const n=prompt('Nome do treino');if(!n||!n.trim())return;const st=stu(),id=uid().slice(0,8);st.data.workouts.push({id,name:n.trim(),plan:[]});put(st.id,'student',st.data);S.wid=id;S.tab='ficha'}
-else if(a==='rens'){const st=stu(),n=prompt('Nome',st.data.name);if(!n)return;st.data.name=n.trim();put(st.id,'student',st.data)}
-else if(a==='renw'){const n=prompt('Nome',W().name);if(!n)return;W().name=n.trim();put(stu().id,'student',stu().data)}
-else if(a==='delw'){if(!confirm('Excluir?'))return;const st=stu(),id=S.wid;sessions(S.sid).filter(x=>x.data.workoutId===id).forEach(x=>del(x.id));st.data.workouts=st.data.workouts.filter(w=>w.id!==id);put(st.id,'student',st.data);S.wid=null;S.tab='treinos'}
-else if(a==='back'){if(S.wid){S.wid=null;S.tab='treinos'}else S.v='home'}
-else if(a==='tab')S.tab=k;
-else if(a==='addst'){const n=prompt('Nome do aluno');if(!n)return;put(uid(),'student',{name:n.trim(),type:S.typeTab,workouts:[]})}
-else if(a==='addex'){const s=stu();W().plan.push({id:uid().slice(0,8),name:'',group:'',equip:'',mode:'load'});put(s.id,'student',s.data)}
-else if(a==='rmex'){const s=stu();W().plan.splice(i,1);put(s.id,'student',s.data)}
-else if(a==='addset'){const cs=curSes(true),id=t.dataset.e,n=rowsN(id,cs);(cs.data.rows??={})[id]=n+1;put(cs.id,'session',cs.data)}
-else if(a==='delset'){const cs=curSes(true),id=t.dataset.e,arr=(cs.data.sets[id]??=[]),n=rowsN(id,cs);if(n<=1)arr.splice(0);else arr.splice(i,1);put(cs.id,'session',cs.data)}
-else if(a==='delst'){if(!confirm('Excluir?'))return;sessions(S.sid).forEach(s=>del(s.id));del(S.sid);S.v='home'}
-else if(a==='finish'){const cs=curSes();if(!cs)return;cs.data.done=true;put(cs.id,'session',cs.data);S.rid=cs.id;S.tab='fim'}
-else if(a==='docopy'){
-  const sel = $('#selCopy'); if(!sel||!sel.value) return alert('Selecione um aluno!');
-  const orig = DB.docs[sel.value];
-  if(orig && orig.data.workouts){
-    const st = stu();
-    st.data.workouts = JSON.parse(JSON.stringify(orig.data.workouts));
-    put(st.id,'student',st.data);
-    alert('Fichas e exercícios copiados com sucesso!');
-    render();
+function render() {
+  const app = document.getElementById('app');
+  if (!AU) {
+    app.innerHTML = `
+      <h1>AF Pro · Login</h1>
+      <div class="card">
+        <input id="em" type="email" placeholder="E-mail" value="andrey.log@hotmail.com">
+        <input id="pw" type="password" placeholder="Senha">
+        <button class="pri" onclick="doLogin()">Entrar no Sistema</button>
+        <p id="msg" class="mu" style="margin-top:8px;color:var(--er);"></p>
+      </div>`;
+  } else {
+    app.innerHTML = `
+      <h1>Painel AF Pro (Admin)</h1>
+      <div class="card">
+        <p>Logado com sucesso como: <b>${AU.email}</b></p>
+        <button onclick="doLogout()" style="background:#ef6b6b;color:#fff;border:0;">Sair da Conta</button>
+      </div>`;
   }
 }
-else if(a==='export'){const o=Object.fromEntries(Object.entries(DB.docs).filter(([,d])=>!d.deleted)),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='backup.json';a.click()}
-else if(a==='logout'){AU=null;localStorage.removeItem('tau');render()}
+
+async function doLogin() {
+  const email = document.getElementById('em').value.trim();
+  const password = document.getElementById('pw').value;
+  try {
+    const res = await fetch(URL_ + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      AU = { at: data.access_token, rt: data.refresh_token, email: data.user?.email || email };
+      localStorage.setItem('tau', JSON.stringify(AU));
+      render();
+    } else {
+      document.getElementById('msg').innerText = data.error_description || 'Erro ao entrar. Verifique os dados.';
+    }
+  } catch (e) {
+    document.getElementById('msg').innerText = 'Falha de conexão com o Supabase.';
+  }
+}
+
+function doLogout() {
+  AU = null;
+  localStorage.removeItem('tau');
+  render();
+}
+
 render();
-});
-document.addEventListener('input',e=>{const t=e.target,k=t.dataset.k;if(!k||!t.dataset.e)return;const cs=curSes(true),arr=(cs.data.sets[t.dataset.e]??=[]),i=+t.dataset.i;while(arr.length<=i)arr.push({});arr[i][k]=t.value.replace(',','.');put(cs.id,'session',cs.data)});
-document.addEventListener('change',e=>{const t=e.target,p=t.dataset.p;if(!p)return;const s=stu();W().plan[+t.dataset.i][p]=t.value;put(s.id,'student',s.data)});
-try{ migAll(); render(); sync(); } catch(err){ console.error(err); }
-</script></body></html>
+</script>
+</body>
+</html>
